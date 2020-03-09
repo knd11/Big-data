@@ -44,9 +44,10 @@ Ctrl + Alt + B：查看源码
 
 Shift + Esc ：折叠左侧Project文件浏览窗口
 
+F4：查看源代码
 Ctrl + H: 查看当前类的继承关系
 Ctrl + N：全局搜索
-Ctrl + F12：查找当前类中方法
+Ctrl + F12：查看当前方法目录
 ```
 
 
@@ -687,6 +688,8 @@ graph LR
 
   Editor --> Genneral -->Code Style -->File Encoding-->全部改为UTF-8
 
+  勾选Transparent native-to-ascii conversion
+
 - 自动编译
 
   Build,Execution,Deployment --> Compiler -->勾选
@@ -1059,7 +1062,7 @@ String:字符串，使用一对""引起来表示。
 
      - String substring(int beginIndex, int endIndex) ：返回一个新字符串，它是此字符串从beginIndex开始截取到endIndex(不包含)的一个子字符串。
 
-     - boolean endsWith(String suffix)：测试此字符串是否以指定的后缀结束
+     - boolean ==endsWith==(String suffix)：测试此字符串是否以指定的后缀结束
 
      - boolean startsWith(String prefix)：测试此字符串是否以指定的前缀开始
 
@@ -1243,9 +1246,19 @@ Calendar 是抽象类
   2. 常用方法
 
      - get()获取常用属性，如本月的第几天
+
+       ```java
+       Calendar calendar = Calendar.getInstance();
+       calendar.set(month, day, year);
+       System.out.println(calendar.get(Calendar.DAY_OF_WEEK));
+       ```
+
      - set()
+
      - add()当前日期加上某天数
+
      - getTime()：日历类-->Date
+
      - setTime()：Date --> 日历类
 
 ##### 3.5 Java 8 中的API
@@ -1478,7 +1491,7 @@ Annotation 其实就是代码里的特殊标记, 这些标记可以在编译, �
 
 ### 2. Collection接口常用方法
 
-向Collection接口的实现类的对象中添加数据obj时，要求obj所在类要重写equals()
+向Collection接口的实现类的对象中添加数据obj时，==要求obj所在类要重写equals()==
 
 注：<u>一旦用Collection创建类，则对集合的添加或者删除元素都是在一个大的全集里操作的</u>
 
@@ -1524,6 +1537,8 @@ Collection coll1 = Arrays.asList(123,456,789);
       >
 
       ```java
+      ArrayList list = new ArrayList();
+      Iterator iterator = list.iterator();
       while(iterator.hasNext()){
           System.out.println(iterator.next());
       }
@@ -1603,21 +1618,910 @@ jdk7和jdk8中通过Vector()构造器创建对象时，底层都创建了长度�
 ##### 3.2.1 List接口中的常用方法
 
 - void add(int index, Object ele)：在index位置插入ele元素
+
 - boolean addAll(int index, Collection eles)：从index位置开始将eles中的所有元素添加进来
+
 - Object get(int index)：获取指定index位置的元素
+
 - int ==indexOf==(Object obj)：返回obj在集合中首次出现的位置
+
 - int lastIndexOf(Object obj)：返回obj在当前集合中末次出现的位置
-- Object ==remove==(int index)：移除指定index位置的元素，并返回此元素
+
+- Object ==remove==(int index)：移除指定<u>index位置的元素</u>（不是删除对象，即区分Collection中的remove(Object obj)），并返回此元素
+
+  ```java
+  list.remove(2);//移除指定索引2处的元素
+  list.remove(new Integer(2));//从当前集合中移除obj元素
+  ```
+
 - Object set(int index, Object ele)：设置指定index位置的元素为ele
-- List subList(int fromIndex, int toIndex)：返回从fromIndex到toIndex位置的子集合
+
+- List subList(int fromIndex, int toIndex)：返回从 [fromIndex,oIndex) 位置的子集合
+
+**总结常用方法：**
+
+- 增：add(Object obj)
+
+- 删：remove(int index) / remove(Object obj)
+
+- 改：set(int index, Object ele)
+
+- 查：get(int index)
+
+- 插：add(int index, Object ele)
+
+- 长度：size()
+
+- 遍历：
+
+  ​     ① Iterator迭代器方式
+  ​     ② 增强for循环
+  ​     ③ 普通的循环
+
+#### 3.3 Set
+
+##### 1. Set 接口的框架
+
+> ----Collection接口：单列集合，用来存储一个一个的对象
+>
+> >----Set接口：存储无序的、不可重复的数据   -->高中讲的“集合”
+> >
+> >>----HashSet：作为Set接口的主要实现类；线程不安全的；可以存储null值
+> >>
+> >>>----LinkedHashSet：作为HashSet的子类；遍历其内部数据时，可以按照添加的顺序遍历对于频繁的遍历操作，LinkedHashSet效率高于HashSet
+> >>
+> >>----TreeSet：可以按照添加对象的指定属性，进行排序
+> >
+> >
+
+注：
+
+1. <u>Set接口中没有额外定义新的方法</u>，使用的都是Collection中声明过的方法。因为无序，不需要索引。
+2. 要求：
+   - 向Set(主要指：HashSet、LinkedHashSet)中添加的数据，其所在的类一定要==重写hashCode()和equals()==
+   - 重写的hashCode()和equals()尽可能保持一致性：相等的对象必须具有相等的散列码
+
+3. 重写两个方法的小技巧：对象中用作 equals() 方法比较的 Field，都应该用来计算 hashCode 值。
+
+
+##### 2. Set：存储无序的、不可重复的数据--以HashSet为例
+
+        1. 无序性：不等于随机性。存储的数据在底层数组中并非按照数组索引的顺序添加，而是数据的==哈希值==决定的。无序性是相对于List的有序（根据添加的顺序）来说的。
+        2. 不可重复性：保证添加的元素按照equals()判断时，不能返回true.即：相同的元素只能添加一个。
+
+##### 3. 添加元素的过程----以HashSet为例
+
+​    我们向HashSet中添加元素a，首先调用元素a所在类的hashCode()方法，计算元素a的哈希值，此哈希值接着通过某种算法计算出在HashSet底层数组中的存放位置（即为：索引位置），判断数组此位置上是否已经有元素：
+
+> 如果此位置上没有其他元素，则元素a添加成功。 ---> ==情况1==
+>
+> 如果此位置上有其他元素b(或以链表形式存在的多个元素），则比较元素a与元素b的hash值：
+>
+> >  如果hash值不相同，则元素a添加成功。---> ==情况2==
+> >  如果hash值相同，进而需要调用元素a所在类的equals()方法：
+> >
+> > > equals()返回true，元素a添加失败
+> > > equals()返回false，则元素a添加成功。---> ==情况2==
 
 
 
+对于添加成功的情况 2 和情况 3 而言：元素a 与已经存在指定索引位置上数据以==链表==的方式存储。
+jdk 7 :元素 a 放到数组中，指向原来的元素。
+jdk 8 :原来的元素在数组中，指向元素 a
+总结：七上八下
+
+==HashSet底层：数组+链表的结构==
+
+( 数字表示commer来的顺序 )
+
+```mermaid
+graph TD
+	subgraph JDK8
+	jdk8_commer4-->jdk8_commer3
+	jdk8_commer3-->jdk8_commer2
+	jdk8_commer2-->jdk8_commer1
+	end
+	
+	subgraph JDK7
+	jdk7_commer1-->jdk7_commer2
+	jdk7_commer2-->jdk7_commer3
+	jdk7_commer3-->jdk7_commer4
+	end
+```
+
+##### 4.  LinkedHashSet
+
+- LinkedHashSet作为HashSet的子类，在添加数据的同时，每个数据还维护了两个引用，记录此数据前一个
+  ​    数据和后一个数据。
+- 优点：对于频繁的遍历操作，LinkedHashSet效率高于HashSet
+
+##### 5. TreeSet
+
+可以按照添加对象的指定属性，进行排序
+
+1. 向TreeSet中添加的数据，要求是相同类的对象。
+2. 两种排序方式：自然排序（实现Comparable接口） 和 定制排序（Comparator）
+3. 自然排序中，比较两个对象是否相同的标准为：==compareTo==()返回0.不再是equals()
+4. 定制排序中，比较两个对象是否相同的标准为：compare()返回0.不再是equals()
+
+### 4. Map
+
+#### 4.1. Map的实现类的结构：
+
+ *  > **Map**:双列数据，存储key-value对的数据   ---类似于高中的函数：y = f(x)
+   >
+   > > 1. **HashMap**：作为Map的主要实现类；线程不安全的，效率高；==存储null的key和value==
+   > >
+   > >    > **LinkedHashMap**：保证在遍历map元素时，可以按照添加的顺序实现遍历。
+   > >    >
+   > >    > 原因：在原有的HashMap底层结构基础上，添加了一对指针，指向前一个和后一个元素。
+   > >    >
+   > >    > 对于频繁的遍历操作，此类执行效率高于HashMap
+   > >
+   > > 2. **TreeMap**：保证按照添加的key-value对进行排序，实现排序遍历。此时考虑key的<u>自然排序或定制排序</u>底层使用==红黑树==
+   > >
+   > > 3. **Hashtable**：作为古老的实现类；线程安全的，效率低；不能存储null的key和value
+   > >
+   > >    > **Properties**：常用来处理配置文件。key和value都是String类型
 
 
 
+```mermaid
+graph LR
+	
+	subgraph Set
+	subgraph KeySet--Set
+	AA
+	BB
+	CC
+	DD 
+	end
+	
+	
+	subgraph Values--Collection
+	90
+	90
+	56
+	78
+	end
+	end
+	
+	AA --> 90
+	BB --> 90
+	CC --> 56
+	DD --> 78
+	
+	4个Entry --> AA
+	4个Entry --> BB
+	4个Entry --> CC
+	4个Entry --> DD
+
+```
+
+遍历：
+
+```java
+//遍历key
+Set<String> keySet = map.keySet()；
+for(String key:keySet){
+	System.out.println(key);
+}
+//遍历value
+Collection<Integer> values = map.values();
+Iterator<Integer> iterator = values.iterator();
+while (iterator.hasNext()){
+    System.out.println(iterator.next());
+}
+//遍历Entry
+Set<Map .Entry<String,Integer>> entrySet =  map.entrySet();
+Iterator<Map.Entry<String,Integer>> iterator = entrySet.iterator();
+while (iterator.hasNext()){
+    Map.Entry<String ,Integer> entry = iterator.next();
+    System.out.println(entry.getKey() + entry.getValue());
+}
+```
 
 
+
+HashMap的底层：
+
+1. 数组+链表  （jdk7及之前）
+2. 数组+链表+红黑树 （jdk 8）
+
+[面试题2](#2. Map)
+
+#### 4.2. Map结构的理解：
+
+1. Map中的 ==key==：无序的、不可重复的，使用==Set存储==所有的key ==> key所在的类要重写equals()和hashCode() （以HashMap为例）
+2. Map中的 ==value== ：无序的、可重复的，使用==Collection存储==所有的value   ==> value所在的类要重写equals()
+3. 一个键值对（==Entry对象==）：key-value构成了一个Entry对象。Map中的entry:无序的、不可重复的，使用Set存储所有的entry
+
+#### 4.3 HashMap的底层实现原理？以jdk7为例说明：
+
+```java
+HashMap map = new HashMap();
+//在实例化以后，底层创建了长度是16的一维数组Entry[] table
+//...可能已经执行过多次put...
+map.put(key1,value1);
+```
+
+1. put操作以后：
+
+   首先，调用key1所在类的hashCode()计算key1哈希值，此哈希值经过某种算法计算以后，得到在Entry数组中的存放位置。
+
+   > 如果此位置上的数据为空，此时的key1-value1添加成功。 ----==情况1==
+   >
+   > 如果此位置上的数据不为空，(意味着此位置上存在一个或多个数据(以链表形式存在))，比较key1和已经存在的一个或多个数据的哈希值：
+   >
+   > > 如果key1的哈希值与已经存在的数据的<u>哈希值都不相同</u>，此时key1-value1添加成功。----==情况2==
+   > >
+   > > 如果key1的哈希值和已经存在的某一个数据(key2-value2)的<u>哈希值相同</u>，继续比较：调用key1所在类的equals(key2)方法，比较：
+   > >
+   > > > 如果equals()返回false：此时key1-value1添加成功。----==情况3==
+   > > >
+   > > > 如果equals()返回true：使用value1替换value2（==修改==功能）
+
+   补充：关于情况2和情况3：此时key1-value1和原来的数据以链表的方式存储
+
+   在不断的添加过程中，会涉及到扩容问题，当超出临界值(且要存放的位置非空)时，扩容。默认的扩容方式：扩容为原来容量的2倍，并将原有的数据复制过来。
+
+2. jdk8 相较于jdk7在底层实现方面的不同：
+
+   - 1. new HashMap():底层没有创建一个长度为16的数组
+     2. jdk 8底层的数组是：==Node[]==,而非Entry[]
+     3. 首次调用==put()方法时，底层创建长度为16的数组==
+     4. jdk7底层结构只有：数组+链表。jdk8中底层结构：数组+链表+红黑树。
+
+     1. > 4.1 形成链表时，七上八下（jdk7:新的元素指向旧的元素。jdk8：旧的元素指向新的元素）.
+        >
+        > 4.2 当数组的某一个索引位置上的元素以链表形式存在的数据个数 > 8 且当前数组的长度 > 64时，此时此索引位置上的所数据改为使用红黑树存储。
+        >
+        > - DEFAULT_INITIAL_CAPACITY : HashMap的默认容量，16
+        > - DEFAULT_LOAD_FACTOR：HashMap的==默认加载因子==：0.75
+        > - threshold：==扩容的临界值==，=容量*填充因子：16 * 0.75 => 12
+        > - TREEIFY_THRESHOLD：Bucket中链表长度大于该默认值，转化为红黑树:8
+        > - MIN_TREEIFY_CAPACITY：桶中的Node被树化时最小的hash表容量:64
+
+#### 4.4 LinkedHashMap的底层实现原理（了解）
+
+ ```java
+//源码中：
+static class Entry<K,V> extends HashMap.Node<K,V> {
+     Entry<K,V> before, after;//能够记录添加的元素的先后顺序
+     Entry(int hash, K key, V value, Node<K,V> next) {
+        super(hash, key, value, next);
+     }
+ }
+ ```
+
+#### 4.5 Map中定义的方法
+
+1. 添加、删除、修改操作：
+   - Object put(Object key,Object value)：将指定key-value添加到(或==修改==)当前map对象中
+   - void putAll(Map m):将m中的所有key-value对存放到当前map中
+   - Object remove(Object key)：移除指定key的key-value对，并返回value
+   - void clear()：清空当前map中的所有==数据==，不是让对象等于null
+2.  元素查询的操作
+   - Object get(Object key)：获取指定key对应的value
+   - boolean containsKey(Object key)：是否包含指定的key
+   -  boolean containsValue(Object value)：是否包含指定的value
+   -  int size()：返回map中key-value对的个数
+   -  boolean isEmpty()：判断当前map是否为空
+   -  boolean equals(Object obj)：判断当前map和参数==对象obj==是否相等
+3. 元视图操作的方法：
+   - Set ==keySet==()：返回所有key构成的Set集合
+   -  Collection ==values==()：返回所有value构成的Collection集合
+   -  Set ==entrySet==()：返回所有key-value对构成的Set集合 
+
+ **总结**：常用方法：
+ * 添加：put(Object key,Object value)
+ * 删除：remove(Object key)
+ * 修改：put(Object key,Object value)
+ * 查询：get(Object key)
+ * 长度：size()
+ * 遍历：keySet() / values() / entrySet()
+
+#### 4.6 TreeMap
+
+向TreeMap中添加key-value，要求key必须是由同一个类创建的对象。因为要<u>按照key进行排序</u>：自然排序 、定制排序
+
+#### 4.7 Hashtable-----Properties
+
+Properties：常用来处理配置文件。key和value都是String类型
+
+#### 4.8 Collections工具类
+
+[面试题](#3. Collection和Collections的区别)
+
+Collections：操作Collection、Map的工具类
+
+常用方法：
+
+- reverse(List)：反转 List 中元素的顺序
+
+- shuffle(List)：对 List 集合元素进行随机排序
+
+- sort(List)：根据元素的自然顺序对指定 List 集合元素按升序排序
+
+- sort(List，Comparator)：根据指定的 Comparator 产生的顺序对 List 集合元素进行排序
+
+- swap(List，int， int)：将指定 list 集合中的 i 处元素和 j 处元素进行交换
+
+- Object max(Collection)：根据元素的自然顺序，返回给定集合中的最大元素
+
+- Object max(Collection，Comparator)：根据 Comparator 指定的顺序，返回给定集合中的最大元素
+
+- Object min(Collection)
+
+- Object min(Collection，Comparator)
+
+- int frequency(Collection，Object)：返回指定集合中指定元素的出现次数
+
+- void copy(List dest,List src)：将src中的内容复制到dest中
+
+  ​                  注：区分add了几个，和数组的长度（list.size）
+
+- boolean replaceAll(List list，Object oldVal，Object newVal)：使用新值替换 List 对象的所有旧值
+
+## 泛型
+
+### 1.泛型的使用
+
+```java
+//泛型的嵌套
+Set<Map.Entry<String,Integer>> entry = map.entrySet();
+Iterator<Map.Entry<String, Integer>> iterator = entry.iterator();
+```
+
+==Map.Entry，其实Entry是Map的内部类==
+
+1. jdk 5.0新增的特性
+2. 在集合中使用泛型：
+
+① 集合接口或集合类在jdk5.0时都修改成了带泛型的结构
+
+② ==在实例化集合类时，可以指明具体的泛型类型==
+
+③ 指明完以后，在集合==类==或==接口==中凡是定义类或接口时，内部结构（比如：方法、构造器、属性等）使用到类的
+
+​      泛型的位置，都指定为实例化的泛型类型。
+
+​      比如：add(E e)  --->实例化以后：add(Integer e)
+
+④ 注意点：<u>泛型的类型必须是类</u>，不能是基本数据类型。需要用到基本数据类型的位置，拿包装类替换
+
+⑤ 如果实例化时，没有指明泛型的类型。默认类型为java.lang.Object类型。
+
+3. 如何自定义泛型结构：泛型类、泛型接口；泛型方法。见 GenericTest1.java
+4. 如果定义了泛型类，实例化没有指明类的泛型，则认为此泛型类型为Object类型
+   要求：如果大家定义了类是带泛型的，建议在实例化时要指明类的泛型
+5. 由于子类在继承带泛型的父类时，指明了泛型类型。则实例化子类对象时，不再需要指明泛型。
+6. 泛型不同的引用不能相互赋值
+7. 静态方法中不能使用泛型
+8. 异常类不能申明为泛型
+
+
+
+- 泛型在继承方面的体现
+
+虽然类A是类B的父类，但是G<A> 和G<B>二者不具备子父类关系，二者是并列关系。
+
+ 补充：类A是类B的父类，A<G> 是 B<G> 的父类
+
+- 通配符的使用
+
+
+2. 通配符的使用
+   ​    通配符：?
+
+       类A是类B的父类，G<A>和G<B>是没有关系的，二者共同的父类是：G<?>
+
+- 添加(写入)：对于List<?>就不能向其内部添加数据，除了添加 null 之外。
+- 获取(读取)：允许读取数据，读取的数据类型为Object
+
+3. 有限制条件的通配符的使用
+
+   ```java
+   ? extends A:
+          G<? extends A> 可以作为G<A>和G<B>的父类，其中B是A的子类
+          （-∞，A]
+   ? super A:
+          G<? super A> 可以作为G<A>和G<B>的父类，其中B是A的父类
+          [A,+∞)
+   ```
+
+4. ​        
+
+
+## IO 流
+
+### File类的使用
+
+1.  File类的一个对象，代表一个文件或一个文件目录(俗称：文件夹)
+
+2. File类声明在java.io包下
+
+3. File类中涉及到关于文件或文件目录的创建、删除、重命名、修改时间、文件大小等方法，并未涉及到写入或读取文件内容的操作。<u>如果需要读取或写入文件内容，必须使用IO流来完成</u>
+
+4. 后续File类的对象常会作为参数传递到流的构造器中，指明读取或写入的"终点"
+
+5. 如何创建File类的实例
+
+          ```java
+      File(String filePath)
+      File(String parentPath,String childPath)
+      File(File parentFile,String childPath)
+      ​    ```
+
+6. File 常用方法
+
+   ```java
+   public String getAbsolutePath()：获取绝对路径
+   public String getPath() ：获取路径
+   public String getName() ：获取名称
+   public String getParent()：获取上层文件目录路径。若无，返回null
+   public long length() ：获取文件长度（即：字节数）。不能获取目录的长度。
+   public long lastModified() ：获取最后一次的修改时间，毫秒值
+   
+   如下的两个方法适用于文件目录：
+   public String[] list() ：获取指定目录下的所有文件或者文件目录的名称数组
+   public File[] listFiles() ：获取指定目录下的所有文件或者文件目录的File数组
+   ```
+
+   - public boolean renameTo(File dest):把文件重命名为指定的文件路径
+     ​     比如：file1.renameTo(file2)为例：
+     ​    要想保证返回true,需要file1在硬盘中是存在的，且file2不能在硬盘中存在
+
+7. File 类的判断功能
+
+   ```java
+   public boolean isDirectory()：判断是否是文件目录
+   public boolean isFile() ：判断是否是文件
+   public boolean exists() ：判断是否存在
+   public boolean canRead() ：判断是否可读
+   public boolean canWrite() ：判断是否可写
+   public boolean isHidden() ：判断是否隐藏
+   ```
+
+8. 创建硬盘中对应的文件或文件目录
+
+   - public boolean ==createNewFile()== ：创建文件。若文件存在，则不创建，返回false。区别于new File
+
+   - public boolean mkdir() ：创建文件目录。如果此文件目录存在，就不创建了。如果此文件目录的<u>上层目录不存在</u>，也不创建。
+
+   - public boolean mkdirs() ：创建文件目录。如果此文件目录存在，就不创建了。如果上层文件目录不存在，一并创建
+
+   - 删除磁盘中的文件或文件目录
+
+     public boolean delete()：删除文件或者文件夹
+     ​    删除注意事项：Java中的删除不走回收站。
+
+### I/O流的体系结构
+
+#### 1. 流的分类
+
+- 操作数据单位：字节流、字符流
+- 数据的流向：输入流、输出流
+- 流的角色：节点流、处理流
+
+#### 2. 流的体系结构
+
+|      | 抽象基类     | 节点流（或文件流）                            | 缓冲流（处理流的一种）                                     |
+| ---- | ------------ | --------------------------------------------- | :--------------------------------------------------------- |
+| 字节 | InputStream  | FileInputStream   (read(byte[] buffer))       | BufferedInputStream (read(byte[] buffer))                  |
+| 流   | OutputStream | FileOutputStream  (write(byte[] buffer,0,len) | BufferedOutputStream (write(byte[] buffer,0,len) / flush() |
+| 字符 | Reader       | FileReader (read(char[] cbuf))                | BufferedReader (read(char[] cbuf) / readLine())            |
+| 流   | Writer       | FileWriter (write(char[] cbuf,0,len)          | BufferedWriter (write(char[] cbuf,0,len) / flush()         |
+
+##### 2.1 抽象基类
+
+**读入**
+
+说明点：
+
+    1. read()的理解：返回读入的一个字符。如果达到文件末尾，返回 -1
+    
+       ```java
+       //1.实例化File类的对象，指明要操作的文件
+       File file = new File("hello.txt");//相较于当前Module
+       //2.提供具体的流
+       FileReaderfr = new FileReader(file);
+       //3.数据的读入
+       int data;
+       while((data = fr.read()) != -1){
+       	System.out.print((char)data);
+           //fr.read()一个一个的读，想要多个读入，可以带参，如fr.read(char[])
+       }
+       //4.流的关闭操作
+       if(fr != null){
+           try {
+               fr.close();
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+       }
+       ```
+    
+    2. 异常的处理：为了保证流资源一定可以执行关闭操作。需要使用try-catch-finally处理
+    
+    3. 读入的文件一定要存在，否则就会报FileNotFoundException。
+
+**写出**
+
+从内存中写出数据到硬盘的文件里。
+
+```java
+//1.提供File类的对象，指明写出到的文件
+File file = new File("hello1.txt");
+//2.提供FileWriter的对象，用于数据的写出
+fw = new FileWriter(file,false);
+//3.写出的操作
+fw.write("I have a dream!\n");
+```
+
+说明：
+
+1. 输出操作，对应的 ==File可以不存在==的。并不会报异常
+
+2. > File对应的硬盘中的文件如果不存在，在输出的过程中，会自动创建此文件。
+   > File对应的硬盘中的文件如果存在：
+   >
+   > > 如果流使用的构造器是：FileWriter(file,==false==) / FileWriter(file):对原有文件的==覆盖==
+   > >
+   > > 如果流使用的构造器是：FileWriter(file,==true==):不会对原有文件覆盖，而是在原有文件基础上==追加==内容​     
+
+
+
+##### 2. 节点流/文件流
+
+**FileInputStream和FileOutputStream的使用**
+
+ * 结论：
+ * 1. 对于文本文件(.txt,.java,.c,.cpp)，使用==字符流==处理
+ * 2. 对于非文本文件(.jpg,.mp3,.mp4,.avi,.doc,.ppt,...)，使用==字节流==处理
+
+##### 3. 缓冲流
+
+ 1.  缓冲流：
+
+     * BufferedInputStream
+     * BufferedOutputStream
+     * BufferedReader
+     * BufferedWriter
+
+ 2.  作用：提供流的读取、写入的速度
+
+     提高读写速度的原因：内部提供了一个缓冲区
+
+ 3.  ==处理流==，就是“套接”在已有的流的基础上
+
+##### 4. 转换流
+
+```mermaid
+graph LR
+	Utf8.txt --字节流--> InputStreamReadrer/utf-8
+	InputStreamReadrer/utf-8 --字符流-->程序
+	程序 --字符流--> OutputStreamWriter/gbk
+	OutputStreamWriter/gbk --字节流-->gbk.txt
+```
+
+处理流之二：转换流的使用
+1. 转换流：属于==字符流==
+
+   - InputStreamReader：将一个字节的输入流转换为字符的输入流
+   - OutputStreamWriter：将一个字符的输出流转换为字节的输出流
+
+2. 作用：提供字节流与字符流之间的转换
+
+3. 解码：字节、字节数组  --->字符数组、字符串
+
+   编码：字符数组、字符串 ---> 字节、字节数组
+
+4. 字符集
+
+   - ASCII：美国标准信息交换码。
+
+     > 用一个字节的7位可以表示。
+
+   -  ISO8859-1：拉丁码表。欧洲码表
+
+     > 用一个字节的8位表示。
+
+   - GB2312：中国的中文编码表
+
+     > 最多两个字节编码所有字符
+
+   - GBK：中国的中文编码表升级，融合了更多的中文文字符号
+
+     > 最多两个字节编码
+
+   -  Unicode：国际标准码，融合了目前人类使用的所有字符。
+
+     > 为每个字符分配唯一的字符码。所有的文字都用两个字节来表示。
+
+   -  UTF-8：变长的编码方式，可用1-4个字节来表示一个字符。
+
+##### 5. 其它流
+
+**标准的输入、输出流**
+
+1.1
+
+> System.in:标准的输入流，默认从键盘输入
+> System.out:标准的输出流，默认从控制台输出  
+
+1.2
+
+> System类的setIn(InputStream is) / setOut(PrintStream ps)方式重新指定输入和输出的流。
+
+1.3 练习：
+
+> 从键盘输入字符串，要求将读取到的整行字符串转成大写输出。然后继续进行输入操作，
+> 直至当输入“e”或者“exit”时，退出程序。
+
+>  方法一：使用Scanner实现，调用next()返回一个字符串
+> 方法二：使用System.in实现。System.in  --->  转换流 ---> BufferedReader的readLine()
+
+
+
+**打印流：PrintStream 和PrintWriter**
+
+2.1 提供了一系列重载的print() 和 println()
+2.2 练习：
+
+**数据流**
+3.1  DataInputStream 和 DataOutputStream
+3.2 作用：用于读取或写出基本数据类型的变量或字符串
+
+练习：将内存中的字符串、基本数据类型的变量写出到文件中。
+
+注意：处理异常的话，仍然应该使用try-catch-finally.
+
+**对象流**
+
+1. 序列化与反序列化
+
+对象流的使用
+
+- 1. ObjectInputStream 和 ObjectOutputStream
+
+  2. 作用：用于存储和读取基本数据类型数据或对象的处理流。它的强大之处就是可以把Java中的对象写入到数据源中，也能把对象从数据源中还原回来。
+
+  3. 要想一个java对象是可序列化的，需要满足相应的要求。见Person.java
+
+  4. 序列化机制：
+
+     对象序列化机制允许把内存中的Java对象转换成平台无关的二进制流，从而允许把这种二进制流持久地保存在磁盘上，或通过网络将这种二进制流传输到另一个网络节点。
+
+  当其它程序获取了这种二进制流，就可以恢复成原来的Java对象。
+
+
+==序列化== 过程：将内存中的java对象保存到磁盘中或通过网络传输出去，使用==ObjectOutputStream==实现
+
+==反序列== 化：将磁盘文件中的对象还原为内存中的一个java对象，使用  ==ObjectInputStream== 来实现
+
+
+
+满足如下的要求，方==可序列化==
+
+- 1.需要实现接口：==Serializable==
+- 2.当前类提供一个全局常量：serialVersionUID
+- 3.除了当前Person类需要实现Serializable接口之外，还必须保证其内部所有属性
+- 也必须是可序列化的。（默认情况下，基本数据类型可序列化）
+- 补充：ObjectOutputStream和ObjectInputStream不能序列化static和transient修饰的成员变量
+
+
+**RandomAccessFile**类
+
+RandomAccessFile的使用
+
+- 1. RandomAccessFile直接继承于java.lang.Object类，实现了DataInput和DataOutput接口
+- 1. RandomAccessFile<u>既可以作为一个输入流，又可以作为一个输出流</u>
+- 1. 如果RandomAccessFile作为输出流时，写出到的文件如果不存在，则在执行过程中自动创建。如果写出到的文件存在，则会对原有文件内容进行覆盖。（默认情况下，从头覆盖）
+- 1. 可以通过相关的操作，实现RandomAccessFile“插入”数据的效果
+
+## 网络编程
+
+### InetAddress
+
+一、网络编程中有两个主要的问题：
+
+- 1. 如何准确地定位网络上一台或多台主机；定位主机上的特定的应用
+  2. 找到主机后如何可靠高效地进行数据传输
+
+二、网络编程中的两个要素：
+
+- 1. 对应问题一：IP和端口号
+  2. 对应问题二：提供网络通信协议：TCP/IP参考模型（应用层、传输层、网络层、物理+数据链路层）
+
+三、通信要素一：IP和端口号
+
+```mermaid
+graph LR
+	域名  --发给DNS解析--> DNS
+    DNS --解析出地址--> IP地址
+    IP地址 --在本地hosts中找对应域名地址--> hosts
+    IP地址 --若hosts中没有/发给网络服务器找--> 网络服务器
+    
+```
+
+
+
+ * 1. ==IP==: 唯一的标识 Internet 上的计算机（通信实体）
+ * 2. 在Java中使用 ==InetAddress== 类代表IP
+ * 3. ==IP分类== ：IPv4 和 IPv6 ; 万维网 和 局域网
+ * 4. 域名(IP难记 于是有了域名):   www.baidu.com   www.mi.com  www.sina.com  www.jd.com www.vip.com
+ * 5. ==本地回路地址==：==127.0.0.1 对应着：localhost==
+ * 6. 如何实例化InetAddress:两个方法：getByName(String host) 、 getLocalHost()
+
+       两个常用方法：getHostName() / getHostAddress()
+  
+ * 7. 端口号：==正在计算机上运行的进程==
+
+       要求：不同的进程有不同的端口号
+
+       范围：被规定为一个 16 位的整数 0~65535。
+ * 8. 端口号与IP地址的组合得出一个==网络套接字：Socket==
+
+### TCP网络协议编程
+
+### UDP网络协议编程
+
+代码：Java Senior day10,java1
+
+### URL编程
+
+ * 1. URL:统一资源定位符，对应着互联网的某一资源地址
+ * 2. 格式：
+
+      http://localhost:8080/examples/beauty.jpg?username=Tom
+
+      协议   主机名    端口号  资源地址           参数列表
+
+      ```java
+      URL url = new URL("http://localhost:8080/examples/beauty.jpg?username=Tom");
+      ```
+
+- 3. 常用方法
+
+     ```java
+     public String getProtocol()     获取该URL的协议名
+     public String getHost()         获取该URL的主机名
+     public String getPort()         获取该URL的端口号
+     public String getPath()         获取该URL的文件路径
+     public String getFile()         获取该URL的文件名
+     public String getQuery()        获取该URL的查询名
+     ```
+
+
+
+## 反射
+
+### 疑问
+
+1. 通过直接new的方式或反射的方式都可以调用公共的结构，开发中到底用那个？
+   建议：直接new的方式。
+
+   什么时候会使用反射的方式：当不确定对象是谁的时候。比如注册、登录时，发送注册信息，服务器跑起来，再去造相应的对象。
+
+    ==反射的特征：动态性==。
+
+2. 反射机制与面向对象中的封装性是不是矛盾的？如何看待两个技术？
+   不矛盾。封装性是建议你调不调内部的私有或公有属性和方法，而反射机制是能不能调的问题
+
+### 关于java.lang.Class类的理解
+
+1. 类的加载过程：
+   程序经过javac.exe命令以后，会生成一个或多个字节码文件(.class结尾)。
+   接着我们使用java.exe命令对某个字节码文件(==含有main方法的class文件== )进行解释运行。相当于将某个字节码文件加载到内存中。此过程就称为==类的加载== 。<u>加载到内存中的类，我们就称为==运行时类==，此时运行时类，就作为Class 的一个实例</u>。
+
+   ```java
+   万事万物皆对象？对象.xxx,File,URL,反射,前端、数据库操作
+   ```
+
+2. 换句话说，Class的实例就对应着一个运行时类。
+3. 加载到内存中的运行时类，会缓存一定的时间。在此时间之内，我们可以通过不同的方式来获取此运行时类。
+
+### 创建运行时类的对象
+
+通过发射创建对应的运行时类的对象
+
+newInstance():调用此方法，创建对应的运行时类的对象。内部调用了运行时类的空参的构造器。
+
+要想此方法正常的创建运行时类的对象，要求：
+​        1. 运行时类必须==提供空参的构造器==
+​        2. 空参的构造器的访问权限得够。通常，设置为public。
+
+ 在javabean中要求提供一个public的空参构造器。原因：
+​    1.便于通过反射，创建运行时类的对象
+​    2.便于子类继承此运行时类时，默认调用super()时，保证父类有此构造器
+
+#### 获取运行时类的属性
+
+- getFields():获取当前运行时类及其父类中声明为public访问权限的属性
+
+- getDeclaredFields():获取当前运行时类中声明的所有属性。（不包含父类中声明的属性）
+
+  可以用foreach语句遍历属性
+
+#### 获取运行时类的方法结构
+
+-  getMethods():获取当前运行时类及其所有父类中声明为public权限的方法
+
+- getDeclaredMethods():获取当前运行时类中声明的所有方法。（不包含父类中声明的方法）
+
+  可以用foreach语句遍历方法
+
+#### 获取运行时类的方法的内部结构
+
+方法的内部结构：
+
+```java
+@Xxxx
+权限修饰符  返回值类型  方法名(参数类型1 形参名1,...) throws XxxException{}
+```
+
+```java
+//1.获取方法声明的注解
+Annotation[] annos = m.getAnnotations();
+//2.权限修饰符
+ System.out.print(Modifier.toString(m.getModifiers()) + "\t");
+//3.返回值类型
+System.out.print(m.getReturnType().getName() + "\t");
+//4.方法名
+System.out.print(m.getName());
+System.out.print("(");
+//5.形参列表
+Class[] parameterTypes = m.getParameterTypes();
+```
+
+##### 其它
+
+获取运行时类实现的接口
+
+- getConstructors():获取当前运行时类中声明为public的构造器
+- getDeclaredConstructors():获取当前运行时类中声明的所有的构造器
+- getSuperclass()获取运行时类的父类
+- getGenericSuperclass() 获取运行时类的带泛型的父类
+- getInterfaces() 获取运行时类实现的接口
+- getPackage() 获取运行时类所在的包
+- getAnnotations 获取运行时类声明的注解
+
+##### 调用运行时类中==指定==的结构：属性、方法、构造器
+
+- getDeclaredField(String fieldName):获取运行时类中指定变量名的==属性==
+
+  ```java
+  //获取运行时类中指定变量名的属性
+  Field name = clazz.getDeclaredField("name");
+  //保证当前属性是可访问的
+  name.setAccessible(true);
+  //获取、设置指定对象的此属性值
+  name.set(p,"Tom");
+  System.out.println(name.get(p));
+  ```
+
+- getDeclaredMethod():参数1 ：指明获取的==方法==的名称  参数2：指明获取的方法的形参列表
+
+  ```java
+  //getDeclaredMethod():参数1 ：指明获取的方法的名称  参数2：指明获取的方法的形参列表
+  Method show = clazz.getDeclaredMethod("show", String.class);
+  //2.保证当前方法是可访问的
+  show.setAccessible(true);
+  //3. 调用方法的invoke():参数1：方法的调用者  参数2：给方法形参赋值的实参invoke()的返回值即为对应类中调用的方法的返回值。
+  Object returnValue = show.invoke(p,"CHN"); //String nation = p.show("CHN");
+  ```
+
+- 获取指定的构造器
+
+  ```java
+  //getDeclaredConstructor():参数：指明构造器的参数列表
+  Constructor constructor = clazz.getDeclaredConstructor(String.class);
+  //2.保证此构造器是可访问的
+  constructor.setAccessible(true);
+  //3.调用此构造器创建运行时类的对象
+  Person per = (Person) constructor.newInstance("Tom");
+  ```
 
 # 面试题
 
@@ -1734,3 +2638,11 @@ graph LR
 *  - 1. ArrayList：作为List接口的主要实现类；线程不安全的，效率高；底层使用Object[] elementData存储
      2. LinkedList：对于频繁的插入、删除操作，使用此类效率比ArrayList高；底层使用双向链表存储
      3. Vector：作为List接口的古老实现类；线程安全的，效率低；底层使用Object[] elementData存储
+
+#### 2. Map
+
+- 1. HashMap的底层实现原理？
+  2. HashMap 和 Hashtable的异同？
+  3. CurrentHashMap 与 Hashtable的异同？（暂时不讲）
+
+#### 3. Collection和Collections的区别
