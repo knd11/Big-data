@@ -1,11 +1,10 @@
-
-
 # VS Code + Java
 
 ## VS Code快捷键
 
 ```shell
 Alt + Up : 上移选中代码
+Fn + home/end ：快速到达行首或行尾
 
 Ctrl + B : 隐藏/展开左侧菜单
 Ctrl + G : 挑到指定行号
@@ -41,6 +40,7 @@ Ctrl + Shift + - ： 折叠所有代码
 Ctrl + Shift + + ： 展开所有代码
 
 Ctrl + Alt + B：查看源码
+Ctrl + Alt + T: surround with，比如 try-catch,if-else等
 
 Shift + Esc ：折叠左侧Project文件浏览窗口
 
@@ -2523,6 +2523,2450 @@ Class[] parameterTypes = m.getParameterTypes();
   Person per = (Person) constructor.newInstance("Tom");
   ```
 
+##### 反射的应用——动态代理
+
+静态代理：代理类和被代理类在编译期间，就确定下来了。
+
+# MySQL核心技术
+
+## 为什么学数据库
+
+1. 实现数据的持久化
+2. 使用完整的管理系统统一管理，易于查询
+
+## 数据库的相关概念
+
+#### DB
+
+database是存储数据的仓库，保存了一系列有组织的数据
+
+#### DBMS
+
+Database Management System ，又称为数据库软件（产品），用于管理DB中的数据
+
+#### SQL
+
+Structure Query Language （结构化查询语言）：专门用来与数据库通信的语言。几乎所有的数据库软件都支持SQL
+
+## 数据库存储数据的的特点
+
+1. 先将数据放在表中，再把表放到库中
+2. 一个数据库可以有多个表，每个表都有名字，表名具有唯一性
+3. 表具有一些特性，定义了数据在表中如何存储，类似于---  “类”
+4. 表由列组成，也称为==字段==。所有表都由一个或多个列组成，每一列类似于Java中的 --- “属性”。
+5. 表中的数据是按行存储的，每一行类似于Java中的 --- “对象”
+
+## MySQL基础
+
+一、数据库概述
+1、为什么要用数据库？
+程序中的数据是在内存中，一旦程序关了，数据就没了，没法永久保存。
+所以我们需要把数据“持久化”。
+
+我们虽然学过IO流和File类，可以实现数据的持久化，但是用普通的文件保存的话
+（1）数据的格式
+（2）检索、管理（增加、修改、删除）等操作及其不方便
+
+因此我们要用特殊的文件来存储我们的数据，这个特殊的文件就是数据库。
+数据库就是有组织/有结构的方式来存储我们的数据。
+
+结论：
+（1）数据“持久化”。
+（2）有组织/有结构的方式来存储我们的数据，更方便增、删、改、查...
+
+2、什么是数据库
+DB：Database，数据库->数据仓库，存储数据用的，并有结构的存储。
+DBMS：Database Management  System  数据库管理系统，
+​	mysql,oracle,sql server, access, redis,mango db...
+SQL:Structured 	Query Language 结构化查询语言
+
+3、安装DBMS
+
+4、mysql属于==关系型数据库== 
+二维（行、列）表格的形式
+
+mysql的DBMS系统中会有很多库DB，
+但是一个DB数据库中又会有很多张表格table，
+每一个表格中会有很多的列column和行record。
+
+#### MySQL软件
+
+MySQL、Oracle、SqlServer都属于C/S型软件，需要安装客户端和服务端，一般我们在开发时都是安装的服务端
+
+## 1. 启动、登录和登出服务器
+
+注意：我们刚才安装的 mysql 是==服务器端== 的程序。
+我们使用时要分为两步：启动 + 登录
+
+#### 检查服务的启动与停止
+
+任务管理器-->服务-->mysql5.5
+
+方式一：计算机，右键 --> 管理 -->  服务和应用程序 --> MySQL --> 启动/停止
+
+方式二 ： 以管理员的方式启动cmd，执行：
+
+```shell
+//启动
+net start mysql//
+//停止
+net stop mysql//mysql是安装时自己设置的MySQL软件的名字
+```
+
+#### MySQL服务的登录和退出
+
+方式一：通过mysql自带的客户端，只限于root用户
+
+方式二：通过windows自带的客户端
+
+```
+//登录：
+mysql 【-h主机名 -P端口号 】-u用户名 -p密码
+如：
+mysql -h localhost -P 3306 -u root -p
+mysql -u root -p
+//退出：
+exit或ctrl+C
+```
+
+## 2. 客户端连接服务器端
+
+客户端的种类有很多，常见的：
+（1）命令行客户端
+（2）Java程序
+（3）可视化工具，SQLyog，Navicat，Mysql admin....
+
+## 3. 使用命令行客户端
+
+（1）确定环境变量正确
+可以使用mysql命令
+（2）mysql命令的格式：
+mysql -h localhost -P 3306 -u root -p
+Enter password:密码
+
+说明：
+（1）-h,-P,-u后面可以有空格也可以没有空格，但是最后-p后面不要加空格
+（2）如果你是默认连接本机localhost，那么可以省略-h localhost
+（3）如果你是默认用 ==3306== 端口号，那么可以省略-P 3306
+
+## 4. 常见命令
+
+##### 1. 创建、查看数据库
+
+```mysql
+CREATE DATABASE name;   //创建数据库name
+show databases;   //查看当前所有的数据库
+```
+
+##### 2. 打开指定的库  
+
+```mysql
+use 库名
+```
+
+##### 3. 查看库的所有表
+
+```mysql
+show tables; //查看当前库的所有表
+show tables from 库名; //查看其它库的所有表
+```
+
+##### 4. 创建表
+
+```mysql
+create table 表名(
+
+列名 列类型,
+列名 列类型，
+。。。
+);
+//如：
+create table firstTable(
+    id int,
+    name varchar(20),
+    age int
+    );
+```
+
+##### 5. 查看表中的数据
+
+```mysql
+select * from firstTable;
+```
+
+##### 6. 在表中添加记录
+
+```mysql
+insert into test.firstTable values(1,'吴猪猪',23);
+```
+
+注：如果客户端（现在用的terminal）编码是GBK，可以通过如下的语句，告知服务器当前的客户端是GBK。
+
+```mysql
+set names gbk;
+```
+
+1. 查看表结构
+
+```mysql
+desc 表名;
+```
+
+## 5. MySql 的数据类型
+
+##### 1. 整型
+
+```mysql
+Java：byte,short,int,long
+mysql：
+tinyint     byte  1个字节   -128~127, unsigned 0~255
+smallint    short 2个字节
+mediumint         3个字节
+int				 4个字节
+bigint	    long  8个字节
+```
+
+例如：
+id int(8)  等价于 int(11)，
+
+`int(8)` 与`int(11)`后的括号中的字符表示==显示==宽度，整数列的显示宽度与 MySQL 需要用多少个字符来显示该列数值，与该整数需要的==存储空间的大小==都没有关系
+
+int(M)：这个 M 是指==最大显示宽度== ，如果单独使用(M)是没有意义，必须结合 ==zerofill unsigned== 
+
+id int(8) zerofill unsigned： 1表示为：00000001
+
+##### 2. 浮点型
+
+```java
+Java：float,double
+mysql：float,double
+
+mysql中的float和double可以指定宽度和精度
+double(M,D)，例如：double(5,2)  存储范围是-999.99~999.99
+	   M是一共有几位，D表示小数点后有几位
+double(M,D) unsigned	，例如：double(5,2) unsigned  存储范围：0~999.99
+```
+
+##### 3. 定点型
+
+Java：BigDecimal,BigInteger
+mysql：DECIMAL和NUMERIC  都是可以表示小数
+
+##### 4. 日期时间类型
+
+```mysql
+Java：java.sql.Date,java.sql.Time,java.sql.Timestamp
+mysql：date,time,timestamp,datetime,year
+date：日期
+time：时间
+timestamp,datetime：日期加时间
+year：只有年份
+
+timestamp,datetime：
+	timestamp底层是使用毫秒表示，可以区分时区的（同一个毫秒值，在不同的时区，显示的结果是适用当前时区）
+	范围：1970 ... ~ 2038....
+    datetime是日期和时分秒表示，不区分时区，什么值就是什么值
+    范围：1000....~ 9999....
+```
+
+##### 5. 字符串类型
+
+```mysql
+Java中分为字符类型char和字符串类型String
+Mysql没有字符类型，都是字符串类型
+	char：也是字符串类型
+	varchar：也是字符串类型，如果是varchar，使用时，必须指定varchar(M)
+	text：也是字符串类型
+	
+	char或char(1)表示存1个字符，如果char(M)存储M个字符
+	char和varchar的区别：
+	char一个是定长字符串，例如：char(8)，'尚'  用'\u0000'补全8位，char的读写速度快
+	varchar一个是变长字符串	,例如：varchar(8)，'尚'  实际占尚这个字和这个字的字节数，varchar读写速度慢，节省空间
+	例如是UTF-8   占3个字节 + 1个字节（存3这个数字）
+```
+
+##### 6. 其他类型
+
+```mysql
+xxxbit
+xxxblob：二进制类型 	可以存储二维码，小头像
+枚举类型：预定义几个值，从中选一个
+集合类型：预定义几个值，从中选多个
+```
+
+##### 7. 特殊值：null
+
+- 在Java中，只有引用数据类型才能赋值为null
+
+  > 要判断null值，  if(变量 == null)  或 if(变量 !=null)
+  >
+  > null值不能用来计算，用来计算是要报错
+
+- 在MySQL中，所有类型都可以赋值为null
+
+  > 要判断null值，  is null  或   is  not  null
+  > null值用来计算不会报错，但是结果都是null
+
+## 6. Structure Query Language，结构化查询语言
+
+##### 规范
+
+（1）mysql对于SQL语句==不区分大小写== ，SQL语句关键字尽量大写
+
+（2）值，除了数值型，==字符串==型和==日期时间==类型使用单引号  ' '
+（3）==列/字段别名==，尽量使用双引号（""），而且不建议省略 as
+（4）所有标点符号使用英文状态下的半角输入方式
+（5）必须保证所有( ),单引号，双引号是成对结束的
+（6）可以使用（1）#单行注释 （2）-- 空格单行注释 （3）/*  多行注释  */
+
+##### 命名规则
+
+（1）必须只能包含 A–Z, a–z, 0–9, _共63个字符
+（2）长度不宜过长
+（3）==不能包含空格==
+（4）不要重名
+​	   	  同一张表 字段不能同名，不同的表 字段可以重名
+​		  同一个库，表不能重名，不同的库，表可以重名
+​		  同一个DBMS中，库不能同名，不同的DBMS系统中，库可以重名
+（5）必须保证你的字段没有和保留字、数据库系统或常用方法冲突		
+（6）如果某个字段在<u>不同的表中，表示的意思是一样的，那么数据类型必须相同</u>
+
+
+## 7. SQL 语言
+
+DDL：数据==定义==语言，定义库、表结构用的
+DML：数据==操作==语言，增、删、改、查
+DCL：数据==控制==语言，权限、事务等控制语句
+
+### 1. DDL
+
+##### 1.1 操作数据库的语句
+
+> show databases;   查看当前DBMS中的所有数据库
+> create database 数据库名;  创建一个数据库
+>
+> drop database 数据库名;   删除一个数据库
+>
+> use 数据库名;   使用/指定使用哪个数据库，有了这句后，下面的sql都是默认针对这个数据库的操作。
+
+##### 1.2 操作表格的语句
+
+>1. show : 查看某个库的所有表格:
+>
+>```mysql
+>show tables;  #必须前面有use 数据库名;的语句  否则报no database select的错误
+>show tables from 数据库名;
+>```
+>
+>2. create：创建表格
+>
+>   ```mysql
+>   //基本版：
+>   create table [数据库名.]表名称(
+>   	字段名1  数据类型,
+>   	字段名2  数据类型,
+>   	字段名2  数据类型,
+>   	....
+>   );
+>   create table [数据库名.]表名称(字段名1  数据类型,字段名2  数据类型,字段名2  数据类型,....);
+>   ```
+>
+>   注意：最后一个字段名的数据类型后面就不用加 "," ，例如：
+>
+>   ```mysql
+>   create table employee(
+>   	id int,
+>   	name varchar(20),
+>   	age int,
+>   	salary double,
+>   	gender char,
+>   	birthday date
+>   );
+>   ```
+>
+>3. desc ：查询表结构
+>
+>   ```mysql
+>   desc 表名称;
+>   ```
+>
+>4. alter + add : 修改表结构：增加一列
+>
+>   ```mysql
+>   alter table 表名称 add 字段名  数据类型 [after 字段名/ first];
+>   #e.g.
+>   alter table employee add tel char(11);
+>   alter table employee add tel char(11)  after name;
+>   ```
+>
+>5. alter + drop : 修改表结构：删除一==列==
+>
+>   ```mysql
+>   alter table 表名称 drop 字段名;
+>   #e.g.
+>   alter table employee drop tel;
+>   ```
+>
+>6. alter + modify : 修改表结构：修改列的类型，位置等
+>
+>   ```mysql
+>   alter table 表名称 modify 字段名  数据类型 【after 字段名/ first】;
+>   #e.g.
+>   alter table employee modify gender char(2) after age;
+>   ```
+>
+>7. alter + change: 修改表结构：修改列的名称
+>
+>   ```mysql
+>   alter table 表名称 change  旧字段名  新的字段名 数据类型 【after 字段名/ first】;
+>   #e.g.
+>   alter table employee change gender sex char(2) after age;
+>   ```
+>
+>8. alter + rename to : 修改表名称
+>
+>   ```mysql
+>   alter table 表名称  rename to 新名称;
+>   #e.g.
+>   alter table employee rename to emp;
+>   ```
+>
+>9. drop table删除整张表，包括数据和表结构
+>
+>   ```mysql
+>   drop table 表名称;
+>   ```
+>
+
+### 2. DML
+
+##### 2.1 insert into : 添加数据
+
+>1. 为表的所有列赋值
+>
+>   ```mysql
+>   insert into 表名称 values(值列表);
+>   #e.g.
+>   insert into employee values(1,'吴猪猪',22,10000,'男','1997-10-05');
+>   ```
+>
+>2. 为表的部分列赋值
+>
+>   ```mysql
+>   insert into 表名称(字段列表) values(值列表);
+>   #e.g.
+>   insert into employee(id,name) values(2,'李四');
+>   
+>   # 一次性增加多行
+>   insert into 表名称 values(值列表1),(值列表2),....;
+>   insert into 表名称(字段列表) values(值列表1),(值列表2),....;
+>   #e.g. 
+>   insert into employee(id,name) values(3,'王五'),(4,'赵六'),(5,'钱七');
+>   ```
+
+##### 2.2 update + set : 修改数据
+
+```mysql
+- update 表名称  set  字段名1 = 字段值1, 字段名2 = 字段值2  [where 条件];
+#e.g.  
+update employee set gender = '男';# 所有成员的性别都变成男
+update employee set age = 24 where name = '李四';
+update employee set salary = salary * 2; #给所有人涨薪
+```
+
+##### 2.3 delete / truncate 删除数据
+
+```mysql
+delete from 表名称 【where 条件】;
+#delete e.g.
+delete from employee;
+delete from employee where name = '赵六';
+
+#truncate
+truncate 表名称;
+#比较
+truncate比delete效率要高。
+truncate是不能回滚。因为它是将整张表drop掉，新建一张。而delete是真的一条一条删除的。
+```
+
+##### 2.4 查看数据
+
+> 1. 查看所有的数据
+>
+>    ```mysql
+>    select * from 表名称;
+>    ```
+>
+> 2. 查看部分列
+>
+>    ```mysql
+>    select 字段列表 from 表名称;
+>    #e.g.
+>    select id,name from employee;
+>    ```
+>
+> 3. 查看部分行(==*表示所有==)
+>
+>    ```mysql
+>    select * from 表名称 [where 条件];
+>    select 字段列表 from 表名称 [where 条件];
+>    #e.g.
+>    select * from employee where name ='张三';
+>    #查看张三的薪资
+>    select salary from employee where name ='张三';
+>    ```
+
+##### 2.5 可以在查询结果时，给字段取别名
+
+```mysql
+select 字段名1 as "别名1",字段名2 as "别名2" ... from 表名称 [where 条件];
+#e.g.
+select id as "编号", name as "姓名", salary as "薪资" from employee;
+select id  "编 号", name 姓名, salary  薪资 from employee;
+```
+
+###### **复习**
+
+> **DDL（至少能够看得懂，如果会就更好了）**
+>
+> 1. 数据库相关
+>
+>    > - show databases;
+>    >
+>    > - use 数据库名;
+>    >
+>    > - create database 数据库名;
+>    >
+>    > - drop database 数据库名;
+>
+> 2. 表结构相关
+>
+>    > - show tables; 
+>    >
+>    > - show tables from 数据库名;
+>    > - create table 【数据库名.】表名称(
+>    >   字段名1 数据类型1,
+>    >   字段名2 数据类型2,
+>    >   ...
+>    >   );
+>    > - ==drop== table 表名称;
+>    > - desc 表名称;
+>    > - alter table 表名称  add 字段名 数据类型 【first/after 另一个字段】;
+>    >   alter table 表名称  modify 字段名 数据类型 【first/after 另一个字段】;
+>    >   alter table 表名称  change 旧字段名 新字段名 数据类型 【first/after 另一个字段】;
+>    >   alter table 表名称  ==drop== 字段名;
+>    >   alter table 旧表名称  rename to 新表名;
+>
+> **DML（必须会写）**
+>
+> 1. 添加
+>
+>    > - insert into 表名称 values(值列表);  #要求值列表的数量、顺序与表结构中字段的数量和顺序一致
+>    > - insert into 表名称(字段列表) values(值列表); #要求值列表的数量、顺序与前面的字段列表一致
+>    > - insert into 表名称(字段列表) values(值列表),(值列表),(值列表)...;
+>    > - insert into 表名称 values(值列表),(值列表),(值列表)...;
+>
+> 2. 修改
+>
+>    > - update 表名称 set 字段名1 = 值,字段名2 = 值,...  【where 条件】;
+>
+> 3. 删除
+>
+>    > ==delete== from 表名称 【where 条件】;
+>    >
+>    > ==truncate== 表名称;
+>
+> 4. 查询
+>
+>    >- select * from 表名称 【where 条件】;
+>    >- select 字段列表  from 表名称 【where 条件】;
+
+##### 2.6 约束
+
+目的：使得数据更准确，更完整。
+约束的分类：
+
+> 1. 键约束
+>
+>   - ==主键约束==
+>
+>     > 1. 概述
+>     >
+>     >    - 关键字 ：primary key
+>     >    - 特点：增加主键约束的列（字段）的值必须是==非空== + 唯一的，一个表只有一个主键约束
+>     >    - 作用：保证表中不会出现两条无法区分的记录
+>     >    - 要求：每一张表都必须有主键约束
+>     >    - 分类 : 单列主键约束 、复合主键约束
+>     >    - 
+>     >
+>     > 2. 使用主键约束
+>     >
+>     >    2.1 创建主键约束(primary key)
+>     >
+>     >    - 建表时指定主键约束
+>     >
+>     >      ```mysql
+>     >      create table 【数据库名.】表名称(
+>     >      	字段1 数据类型 primary key,
+>     >      	字段2 数据类型,
+>     >      	....
+>     >      );
+>     >      create table dept(
+>     >         id int,
+>     >         name varchar(20),
+>     >         description varchar(20));
+>     >      create table 【数据库名.】表名称(
+>     >      	字段1 数据类型,
+>     >      	字段2 数据类型,
+>     >      	....,
+>     >      	primary key(字段1)
+>     >      );
+>     >      ```
+>     >
+>     >    - 建表后指定主键约束
+>     >
+>     >      ```mysql
+>     >      create table dept(
+>     >      	id int,
+>     >      	name varchar(20),
+>     >      	description varchar(100)
+>     >      );
+>     >      修改表结构：
+>     >      alter table dept add primary key(id);
+>     >      ```
+>     >
+>     >    2.2  删除主键约束
+>     >
+>     >    ```mysql
+>     >    alter table 表名称 drop primary key;
+>     >    ```
+>     >
+>     > 3. ==复合主键==
+>     >
+>     >    3.1 建表时指定主键约束
+>     >
+>     >    > 1. ```mysql
+>     >    >    create table 【数据库.】表名称(
+>     >    >    	字段1 数据类型,
+>     >    >    	字段2 数据类型,
+>     >    >    	字段3 数据类型,
+>     >    >    	...,
+>     >    >    	primary key(字段列表)
+>     >    >    );
+>     >    >    #e.g.
+>     >    >    create table score(
+>     >    >    	sid int,		#学号
+>     >    >    	cid int,		#课程编号
+>     >    >    	score int,		#对应的成绩
+>     >    >    	primary key(sid,cid)
+>     >    >    );
+>     >    >    ```
+>     >    >
+>     >    >    ​    说明：复合主键不能在列后面加，需要单独指定
+>     >
+>     >    3.2 建表后指定主键约束
+>     >
+>     >    >alter table 【数据库.】表名称 add primary key(字段列表);
+>     >    >
+>     >    >```mysql
+>     >    >create table stu(
+>     >    >	sid int,
+>     >    >    sname varchar(20)
+>     >    >);
+>     >    >create table course(
+>     >    >	cid int,
+>     >    >    cname varchar(20)
+>     >    >);
+>     >    >create table score(
+>     >    >    sid int,
+>     >    >    cid int,
+>     >    >    score int
+>     >    >);
+>     >    >insert into stu values(1,'张三'),values(2,'李四');
+>     >    >insert into course values(1001,'mysql'),(1002,'java');
+>     >    >insert into score values(1,1001,89),(1,1002,90),(2,1001,88),(2,1002,92);
+>     >    ># score:
+>     >    >+------+------+-------+
+>     >    >| sid  | cid  | score |
+>     >    >+------+------+-------+
+>     >    >|    1 | 1001 |    89 |
+>     >    >|    1 | 1002 |    90 |
+>     >    >|    2 | 1001 |    88 |
+>     >    >|    2 | 1002 |    92 |
+>     >    >+------+------+-------+
+>     >    >sid和cid都可能不止出现一次，于是出现复合主键，将两者一起设置为主键：
+>     >    >alter table score add primary key(sid,cid);
+>     >    >
+>     >    >#也可以通过唯一标记行，不用符合主键
+>     >    >create table score(
+>     >    >	id int,			#没有业务意义，只是唯一标记一行
+>     >    >	sid int,		#学号
+>     >    >	cid int,		#课程编号
+>     >    >	score int,		#对应的成绩
+>     >    >	primary key(id)
+>     >    >);
+>     >    >```
+>     >
+>     > 4. ==唯一键约束== 
+>     >
+>     >    - 概述
+>     >
+>     >      > 1、关键字：unique key
+>     >      > 2、特点：指定了唯一键的列的值必须唯一，不能重复
+>     >      > 3、作用：给主键以外的列，限定唯一性
+>     >      > 4、唯一键分类：单列的唯一，复合唯一
+>     >      >
+>     >      > 5、唯一键和主键的区别： 
+>     >      > （1）主键不能为空，唯一键可以为空
+>     >      > （2）主键约束，一个表只能有一个，而唯一键可以有很多个
+>     >
+>     >    - 使用唯一键
+>     >
+>     >      （1）在建表时
+>     >
+>     >      ```mysql
+>     >      
+>     >      create table 【数据库名.】表名称(
+>     >      	字段1 数据类型  primary key,
+>     >          字段2 数据类型 【unique key】,
+>     >          字段3 数据类型 【unique key】,
+>     >      	...
+>     >      );
+>     >      或
+>     >      create table 【数据库名.】表名称(
+>     >      	字段1 数据类型  primary key,
+>     >      	字段2 数据类型 ,
+>     >      	字段3 数据类型 ,
+>     >      	...,
+>     >      	unique key(字段2),  #分别唯一
+>     >      	unique key(字段3)
+>     >      );
+>     >      
+>     >      create table 【数据库名.】表名称(
+>     >      	字段1 数据类型  primary key,
+>     >      	字段2 数据类型 ,
+>     >      	字段3 数据类型 ,
+>     >      	...,
+>     >      	unique key(字段列表)  #复合唯一
+>     >      );
+>     >      
+>     >      create table emp(
+>     >      	eid int primary key,  #员工编号
+>     >      	ename varchar(20),   #姓名
+>     >      	cardid varchar(18)  unique key,		#身份证号
+>     >      	tel varchar(11) unique key
+>     >      );
+>     >      
+>     >      insert into emp values(1,'张三','123456789123456789','12345678912');
+>     >      insert into emp values(2,'李四','123456789123456788','12345678912');
+>     >      
+>     >      mysql> insert into emp values(2,'李四','123456789123456788','12345678912');
+>     >      ERROR 1062 (23000): Duplicate entry '12345678912' for key 'tel'
+>     >      ```
+>     >
+>     >      (2) 在建表后
+>     >
+>     >      ```mysql
+>     >      alter table 【数据库名.】表名称 add unique key(字段名);
+>     >      alter table 【数据库名.】表名称 add unique key(字段列表);  #复合唯一
+>     >      ```
+>     >
+>     >    - 删除唯一键
+>     >
+>     >      ```mysql
+>     >      alter table 【数据库名.】表名称 drop index 索引名;
+>     >      
+>     >      #如果不知道索引名，可以通过如下的语句查询：
+>     >      show index from 表名称;
+>     >      
+>     >      alter table emp drop unique key;  #错误
+>     >      alter table emp drop unique key(cardid);  #错误
+>     >      alter table emp drop index cardid;#正确
+>     >      ```
+>     >
+>     >      索引：index   
+>     >      ​	作用：为了提高查询效率，而设置索引。我们的键约束（主键、唯一键、外键），都会自动创建索引。
+>     >      ​	因为既然你建立键约束，那么该列的值一定很关键，那么在实际中肯定经常用他们的值来查询。
+>     >      ​	因此，为了提高查询效率，会自动在这些列上增加索引。
+>     >
+>     > 5. ==非空约束和默认值约束== 
+>     >
+>     >    - 指定非空约束
+>     >
+>     >      > - 建表时
+>     >      >
+>     >      > ```mysql
+>     >      > create table emp(
+>     >      > 	eid int primary key,  #员工编号
+>     >      >   	ename varchar(20) not null,   #姓名
+>     >      >   	cardid varchar(18)  unique key not null , #身份证号
+>     >      >   	tel varchar(11) unique key not null,
+>     >      >   	gender char not null default '男'
+>     >      >   );
+>     >      > 
+>     >      > insert into emp values(1,'张三','111','10086','女');
+>     >      > insert into emp values(2,'李四','111','女');  #错误的，原因是值的数量和列的数量不匹配
+>     >      > insert into emp(eid,ename,cardid,gender) values(2,'李四','111','女');   #错误的  因为tel设置非空，但是又没指定默认值
+>     >      > insert into emp(eid,ename,cardid,tel) values(2,'李四','222','10010'); 
+>     >      > insert into emp values(3,'王五','3333','10011',default); 
+>     >      > ```
+>     >      >
+>     >      > - 建表后
+>     >      >
+>     >      >   ```mysql
+>     >      >   create table 【数据库名.】表名称(
+>     >      >   	字段1 数据类型 primary key,
+>     >      >   	字段2 数据类型 【unique key】【not null】【default 默认值】,
+>     >      >   	字段2 数据类型 【unique key】【not null】【default 默认值】,
+>     >      >   	...
+>     >      >   );
+>     >      >   
+>     >      >   create table emp(
+>     >      >   	eid int primary key,  #员工编号
+>     >      >   	ename varchar(20) not null,   #姓名
+>     >      >   	cardid varchar(18)  unique key  ,#身份证号
+>     >      >   	tel varchar(11) unique key ,
+>     >      >   	gender char 
+>     >      >   );
+>     >      >   
+>     >      >   alter table emp modify cardid varchar(18) unique key  not null;
+>     >      >   alter table emp modify tel varchar(11)   not null;
+>     >      >   alter table emp modify gender char not null default '男';
+>     >      >   ```
+>     >
+>     >    - - 如何去掉非空和默认值约束
+>     >
+>     >      ```mysql
+>     >      alter table emp modify gender char ;
+>     >      ```
+>     >
+>     > 6. ==自增约束== 
+>     >
+>     >    1. 关键字：auto_increment
+>     >
+>     >    2. 特点
+>     >
+>     >       （1）一个表只能有一个自增列
+>     >       （2）自增列必须是整型的
+>     >       （3）自增列必须是==键列==，例如：主键，唯一键
+>     >
+>     >    3. 如何指定自增
+>     >
+>     >       ```mysql
+>     >       create table emp(
+>     >       	eid int primary key auto_increment,
+>     >       	ename varchar(20) not null
+>     >       );
+>     >       #不管eid处设置多少，只要前面设置了值，就会一直增加下去
+>     >       insert into emp values(2,'张三'); # eid = 2
+>     >       insert into emp(ename)values('李四');# eid = 3
+>     >       insert into emp values(0,'王五');# eid = 4
+>     >       insert into emp values(null,'赵六');# eid = 5
+>     >       ```
+>     >
+>     > 7. ==外键约束==（了解）
+>     >
+>     >    七、外键约束（了解）
+>     >    外键约束不是必须的，而且现在很多大的公司，数据量比较大时，不建议在数据库层面设计外键，因为他觉得这样效率低，把这个数据的约束挪到代码层面去判断。
+>     >
+>     >    1. 概述
+>     >
+>     >       - 关键字：foreign key
+>     >
+>     >       - 特点：
+>     >
+>     >         > 1. 约束的是两张表的关系，需要两张表，或者一张表虚拟成两张表
+>     >         > 2. 两张表分为主表（父表）和从表（子表），外键的建立/指定是在从表（子表）上建立
+>     >         > 3. 被参考的表称为主表，主表的被参考列必须是主键或唯一键
+>     >         > 4. 一个表可以有多个外键
+>     >
+>     >    2. 指定外键
+>     >
+>     >       - 建表时指定外键
+>     >
+>     >         > 要求：
+>     >         >
+>     >         > 1. 建表的顺序：先建主表，再建从表。从表的语法：
+>     >         >
+>     >         >    ```mysql
+>     >         >    create table 【数据库名.】表名称(
+>     >         >    	字段1 数据类型  primary key,
+>     >         >    	字段2 数据类型 【unique key】【not null】【default 默认值】,
+>     >         >    	字段3 数据类型 【unique key】【not null】【default 默认值】,
+>     >         >    	...,
+>     >         >    	foreign key(从表的外键列) references 主表名(主表被参考的列名)
+>     >         >    );
+>     >         >    ```
+>     >         >
+>     >         > 2. 删表的顺序
+>     >         >    先删从表，再删除主表。
+>     >         >
+>     >         > 3. 添加/修改从表数据
+>     >         >
+>     >         >    添加/修改从表记录时，引用主表的列的值必须是存在的。
+>     >         >    例如：添加/修改员工表时，员工所在部门的值必须引用部门表的部门编号，保证该部门编号是存在的。
+>     >         >
+>     >         > 4. 删除/修改主表记录
+>     >         >
+>     >         >    - 默认情况下，如果主表的被参考列的值被引用，那么就不能轻易的被删除和修改。
+>     >         >
+>     >         >      例如：2号部门被员工引用了，那么这个2号部门就不能被删除，并且2这个编号值不能被修改。
+>     >         >
+>     >         >      ```mysql
+>     >         >      foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update restrict/no action】 【on delete restrict/no action】
+>     >         >      ```
+>     >         >
+>     >         >    - 如果在建立外键时，指定了“级联”策略，那么可以做到级联修改和删除
+>     >         >
+>     >         >      ```mysql
+>     >         >      foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update cascade】 【on delete cascade】
+>     >         >      ```
+>     >         >
+>     >         >    - C:如果在建立外键时，指定了“置空”策略，那么可以做到主表的记录被修改或删除时，从表的对应字段变为NULL
+>     >         >
+>     >         >      ```mysql
+>     >         >      foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update set null】 【on delete set null】
+>     >         >      ```
+>     >         >
+>     >         >    ```mysql
+>     >         >    #部门表：主表
+>     >         >    create table dept(
+>     >         >    	did int primary key,		#部门编号
+>     >         >    	dname varchar(20) not null unique key,  #部门名称
+>     >         >    	description varchar(100)				#部门简介
+>     >         >    );
+>     >         >    insert into dept values(1,'财务部','发钱的'),(2,'后勤部','发礼物的');
+>     >         >    
+>     >         >    #职位表：主表
+>     >         >    create table job(
+>     >         >    	jid int primary key,		#职位编号
+>     >         >    	title varchar(20) not null , #职位名称
+>     >         >    	description varchar(100)	#职位简介
+>     >         >    );
+>     >         >    insert into job values(1,'会计','算钱的'),(2,'助理','修电脑的');
+>     >         >    
+>     >         >    #员工表：从表
+>     >         >    create table emp(
+>     >         >    	eid int primary key,			#员工编号
+>     >         >    	ename varchar(20) not null,  #员工姓名
+>     >         >    	deptid int,    #所在的部门编号   deptid可以取名did
+>     >         >    	jobid int,     #职位编号
+>     >         >    	foreign key(deptid) references dept(did),
+>     >         >    	foreign key(jobid) references job(jid) on update set null on delete set null
+>     >         >    );
+>     >         >    
+>     >         >    insert into emp values(1,'张三',1,1),(2,'李四',1,1),(3,'王五',2,2),(4,'赵六',2,2);
+>     >         >    ```
+>     >         >
+>     >
+>     >       - 建表后指定外键
+>     >
+>     >         ```mysql
+>     >         alter table 从表名称 add foreign key(从表的字段) references 主表名(主表被参考的列名);
+>     >         ```
+>     >
+>     >    3. 同一张表，自引用
+>     >
+>     >       ```mysql
+>     >       create table emp(
+>     >           eid int primary key,
+>     >           ename varchar(20) not null,
+>     >           managerid int,
+>     >           foreign key(managerid) references emp(eid);
+>     >       );
+>     >       insert into emp values(1,'张三',1);#张三自己管自己
+>     >       insert into emp values(2,'李四',1);#张三管李四
+>     >       insert into emp values(3,'王五',2);#李四管王五
+>     >       ```
+>     >
+>     >    4. 删除外键
+>     >
+>     >       ```mysql
+>     >       alter table 从表名称 drop foreign key 外键约束名;
+>     >       #查看外键约束名
+>     >       SELECT * FROM information_schema.table_constraints WHERE table_name = '表名称';
+>     >       ```
+>     >
+>     > 8. 
+>
+>   - 
+>
+>
+
+### 3. DCL
+
+#### 客户端：
+
+- 命令行
+
+  ```mysql
+  mysql -h 主机地址 -P 端口号 -u 用户名 -p回车
+  Enter Password: 密码
+  ```
+
+- MySQL
+
+- SQLyog
+
+- Navicat
+
+- JDBC程序
+
+客户端要连接 MsySQL 服务器才能操作数据库
+
+#### 运算符
+
+##### 1. 算术运算符
+
+- 加：+
+- 减：-
+- 乘：*
+- 除：/  或  div
+  ​	div只保留整数部分
+- 模：%  或  mod
+
+```mysql
+#查询员工的姓名和薪资
+SELECT ename,salary FROM t_employee;
+
+#查询员工的姓名和原来的薪资和涨薪1000元后的薪资
+SELECT ename,salary,salary + 1000 FROM t_employee;
+
+#查询9/4的结果
+SELECT 9/4
+
+#查询9/4的结果
+SELECT 9 DIV 4
+
+#查询员工的姓名，和每天的薪资，假设每个月的工作日是22天
+SELECT ename AS "姓名", salary / 22 AS "日薪" FROM t_employee
+
+#查询9%4的结果
+SELECT 9%4, 9 MOD 4;
+```
+
+##### 2. 比较运算符
+
+- 大于：>
+- 小于：<
+- 大于等于：>=
+- 小于等于：<=
+- 等于：=====    
+     赋值和比较都是用 =
+- 不等于：!=  或  ==<>== 
+- 安全等于：==<=>==，避免与null比较出错
+
+```mysql
+#查询薪资大于20000的员工
+SELECT * FROM t_employee WHERE salary > 20000;
+
+#查询薪资等于9000
+SELECT * FROM t_employee WHERE salary = 9000;
+
+#查询部门编号不是1的员工
+SELECT * FROM t_employee WHERE did != 1;
+SELECT * FROM t_employee WHERE did <> 1;
+
+#查询奖金比例是NULL的员工
+SELECT * FROM t_employee WHERE commission_pct = NULL;#错误的
+SELECT * FROM t_employee WHERE commission_pct <=> NULL;
+SELECT * FROM t_employee WHERE commission_pct IS NULL;
+```
+
+##### 3. 逻辑运算符
+
+- 与：&& 或 and
+- 或：|| 或 or
+- 非：!  或 not
+
+```mysql
+#查询薪资高于10000 并且低于15000的女员工
+SELECT * FROM t_employee
+WHERE salary > 10000 && salary <15000 AND gender = '女'
+
+#查询薪资高于20000  或者  籍贯是 浙江
+SELECT * FROM t_employee
+WHERE salary > 20000 || native_place = '浙江';
+
+#查询非浙江籍的男生
+SELECT * FROM t_employee
+WHERE NOT native_place = '浙江' AND gender = '男';
+
+#查询奖金比例非空的员工
+SELECT * FROM t_employee
+WHERE commission_pct IS NOT NULL;
+```
+
+##### 4. 区间范围和集合运算符
+
+- 区间范围
+
+  > between xx and yy：[xx,yy]
+  > not between xx and yy：  小于xx 或 大于yy
+
+- 集合范围
+
+  > in (值列表)
+  > not in(值列表)
+
+```mysql
+#查询薪资大于等于10000 并且小于等于15000的员工
+SELECT * FROM t_employee
+WHERE salary BETWEEN 10000 AND 15000;
+
+#查询籍贯是 “浙江”、“北京”、“上海”、“黑龙江”的员工
+SELECT * FROM t_employee
+WHERE native_place IN ('浙江','上海','北京','黑龙江');
+
+#查询籍贯不是 “浙江”、“北京”、“上海”、“黑龙江”的员工
+SELECT * FROM t_employee
+WHERE native_place NOT IN ('浙江','上海','北京','黑龙江');
+```
+
+##### 5. 模糊查询
+
+- like 'xx'
+
+  > xx可以用占位符：
+  >
+  > **_**  代表确定的一个字符
+
+-  %：代表是任意个数的字符，0~n个
+
+```mysql
+#查询名字中，第二个字是“冰”
+SELECT * FROM t_employee
+WHERE ename LIKE '_冰%';
+```
+
+#### 联合查询
+
+<img src="pic/联合查询.png" width="70%">
+
+
+
+关联查询包括：
+
+- 1. 内连接：inner join
+
+  2. 外连接
+     （1）左外连接：left join
+     （2）右外连接：right join
+     （3）全外连接：full join  mysql不支持
+
+  3. 关联查询分类：
+
+     > 关联查询必须有两张或两张以上，以下用两张来示例：
+     >
+     > 1. A ∩ B  ： 内连接
+     >
+     > 2. A  ： 左连接
+     >
+     > 3. A - A ∩ B：左连接
+     >
+     > 4. B ： 右连接
+     >
+     > 5. B - A ∩ B ： 右连接
+     >
+     > 6. A ∪ B
+     >
+     > 7. A ∪ B - A ∩ B
+     >
+     >    ​	6、7 本应该用全外连接，现在用 union（序号对应上述连接的序号）
+     >    ​	6 = 2  union  4
+     >    ​	7 = 3  union 5 
+
+##### 1. 内连接
+
+- 形式一
+
+  ```mysql
+  select 字段列表
+  from A表 inner join B表 
+  on 关联条件 
+  【where 其他筛选条件】
+  ```
+
+  说明：
+     如果不写关联条件，会出现一种现象：==笛卡尔积==
+     关联条件的个数 = n - 1，n是几张表关联
+     on 只能和 join 一起用
+
+
+- 形式二
+
+  ```mysql
+  select 字段列表
+  from A表 , B表
+  where 关联条件 【and 其他筛选条件】
+  ```
+
+  ```mysql
+  #查询所有的员工的姓名和他所在部门的编号和部门的名称，不包括那些没有安排部门的员工
+  SELECT ename,did,dname FROM t_employee INNER JOIN t_department  #错误
+  #错误：Column 'did' in field list is ambiguous，因为did没有说明是哪个表的
+  #方式一
+  SELECT ename,t_employee.did,dname 
+  FROM t_employee INNER JOIN t_department
+  ON t_employee.did = t_department.did
+  #方式二
+  FROM t_employee , t_department
+  WHERE t_employee.did = t_department.did 
+  
+  #查询所有的==女==员工的姓名和他所在部门的编号和部门的名称，不包括那些没有安排部门的员工
+  #方式一
+  SELECT ename,t_employee.did,dname 
+  FROM t_employee INNER JOIN t_department
+  ON t_employee.did = t_department.did
+  WHERE gender = '女';
+  #方式二
+  SELECT ename,t_employee.did,dname 
+  FROM t_employee , t_department
+  WHERE t_employee.did = t_department.did AND gender = '女'
+  
+  #查询员工编号，员工的姓名，部门编号，部门名称，职位编号，职位名称
+  #需要t_employee,t_department, t_job
+  SELECT t_employee.eid, t_employee.`ename`, t_department.did,t_department.`dname`, t_job.`job_id`,t_job.`job_name`
+  FROM t_employee INNER JOIN t_department INNER JOIN t_job
+  ON t_employee.did = t_department.did AND t_employee.`job_id` = t_job.`job_id`
+  
+  SELECT t_employee.eid, t_employee.`ename`, t_department.did,t_department.`dname`, t_job.`job_id`,t_job.`job_name`
+  FROM t_employee , t_department , t_job
+  WHERE t_employee.did = t_department.did AND t_employee.`job_id` = t_job.`job_id`
+  ```
+
+##### 2. 左连接
+
+第一种结果：A
+
+```mysql
+select 字段列表
+from A表 left join B表
+on 关联条件
+```
+
+第二种结果：A - A∩B
+
+```mysql
+select 字段列表
+from A表 left join B表
+on 关联条件
+where 从表的关联字段 is null
+```
+
+```mysql
+#查询所有员工和他的部门编号，部门名称，包括那些没有部门的员工
+SELECT * 
+FROM t_employee LEFT JOIN t_department
+ON t_employee.did = t_department.did
+
+#查询所有没有部门的员工
+##不用关联查询也可以实现
+SELECT * FROM t_employee WHERE did IS NULL
+
+##用关联查询
+SELECT * 
+FROM t_employee LEFT JOIN t_department
+ON t_employee.did = t_department.did
+WHERE t_employee.did IS NULL
+```
+
+##### 3. 右连接
+
+1. 左连接和右连接的区别：
+
+- left换成right
+- 左边的表为主还是以右边的表为主
+
+2. 右连接第一种结果：B
+
+   ```mysql
+   select 字段列表
+   from A表 right join B表
+   on 关联条件
+   ```
+
+3. 右连接第二种结果：B - A∩B
+
+   ```mysql
+   select 字段列表
+   from A表 right join B表
+   on 关联条件
+   where 从表的关联字段 is null
+   ```
+
+##### 4. 联合查询
+
+使用union实现全连接的效果
+
+- A ∪ B
+
+  ```mysql
+  select 字段列表
+  from A表 left join B表
+  on 关联条件
+  
+  union 
+  
+  select 字段列表
+  from A表 right join B表
+  on 关联条件
+  ```
+
+- A ∪ B - A ∩ B （相当于 A - A∩B  union B - A∩B）
+
+  ```mysql
+  select 字段列表
+  from A表 left join B表
+  on 关联条件
+  where 从表的关联字段 is null
+  
+  union
+  
+  select 字段列表
+  from A表 right join B表
+  on 关联条件
+  where 从表的关联字段 is null
+  ```
+
+
+```mysql
+#查询所有员工和部门信息，包括那些没有部门的员工和没有员工的部门
+SELECT *
+FROM t_employee LEFT JOIN t_department
+ON t_employee.did = t_department.did
+
+UNION
+
+SELECT *
+FROM t_employee RIGHT JOIN t_department
+ON t_employee.did = t_department.did
+
+#查询那些没有部门的员工和没有员工的部门
+/*
+where xxx  is null
+xxx 看从表
+
+员工表和部门表来说，员工表是从表。
+因为主表的字段，例如did是不可能为null
+*/
+SELECT *
+FROM t_employee LEFT JOIN t_department
+ON t_employee.did = t_department.did
+WHERE t_employee.did IS NULL
+
+UNION 
+
+SELECT *
+FROM t_employee RIGHT JOIN t_department
+ON t_employee.did = t_department.did
+WHERE t_employee.did IS NULL
+```
+
+##### 5. 特例：自连接
+
+联合查询需要两张表，现在自连接，就一张表当两张表用。通过给表取别名的方式，把一张表变成“两张表”
+表的别名不要加 " "
+
+```mysql
+#查询员工的编号，员工的姓名，领导的编号，领导的姓名
+#员工的信息和领导的信息都在t_employee表
+
+SELECT emp.eid,emp.ename,emp.`mid`,mgr.ename
+FROM t_employee AS emp INNER JOIN t_employee AS mgr  #emp代表员工表，mgr代表领导表
+ON emp.`mid` = mgr.`eid`  #员工的领导编号 = 领导的员工编号
+```
+
+#### select 的5个子句
+
+之前：
+
+```mysql
+select * from 表名称 【where 条件】;
+select 字段列表 from 表名称 【where 条件】;
+```
+
+现在select语句的5个子句：
+
+- > - where
+  >
+  >   where 条件   用于从表中筛选出符合条件的记录（行）
+  >
+  > - group by
+  >
+  > - having
+  >
+  > - order by
+  >
+  > - limit
+
+
+
+这5个子句可以同时出现，也可以只出现其中的一部分，其中如果有having前面得有group by，但是有group by不一定有having
+如果5个子句有多个==同时出现的，那么必须按照（1）-（5）的顺序==
+例如：要分组统计之前，需要把满足条件的行先筛选出来，或者说把不满足条件的行排除掉才能统计
+
+##### 1. where
+
+```mysql
+#查询所有的女员工
+SELECT * FROM t_employee WHERE gender = '女';
+
+#查询所有女员工的姓名和薪资
+SELECT ename,salary FROM t_employee WHERE gender = '女';
+```
+
+**分组函数**
+
+| sum  | count | avg  | max  | min  |
+| ---- | ----- | ---- | ---- | ---- |
+|      |       |      |      |      |
+
+```mysql
+#查询全公司本月要发多少钱，暂时不考虑奖金和扣除的钱
+#即查询全公司所有员工的工资总数
+SELECT SUM(salary) AS "工资总数" FROM t_employee;
+
+#查询全公司的员工总数
+SELECT COUNT(eid) AS "总人数" FROM t_employee;  #如果count(字段名)那么会排除该字段是null值的行
+SELECT COUNT(1) AS "总人数" FROM t_employee;    #如果count(常量值)或count(*)那么统计的是行数
+SELECT COUNT(*) AS "总人数" FROM t_employee;
+
+#查询全公司的平均工资
+SELECT AVG(salary) AS "全公司的平均工资" FROM t_employee;
+
+#查询全公司的最高工资
+SELECT MAX(salary) AS "全公司的最高工资" FROM t_employee;
+
+#查询全公司的最低工资
+SELECT MIN(salary) AS "全公司的最低工资" FROM t_employee;
+
+#查询全公司的女员工的平均工资和最高工资、总工资
+SELECT AVG(salary),MAX(salary),SUM(salary) FROM t_employee WHERE gender = '女';
+
+#查询did=5部门的女员工的平均工资和最高工资、总工资
+SELECT AVG(salary),MAX(salary),SUM(salary) FROM t_employee WHERE gender = '女' AND did = 5;
+```
+
+##### 2. group by : 分组统计
+
+```mysql
+#查询每个部门的平均工资
+SELECT did,AVG(salary) FROM t_employee GROUP BY did;
+
+#查询每个部门的平均工资，排除没有部门的员工
+SELECT did,AVG(salary) FROM t_employee WHERE did IS NOT NULL GROUP BY did ;
+
+#查询每个部门编号，部门名称，和平均工资，排除没有部门的员工
+#需要联合查询
+#用SELECT did,AVG(salary) FROM t_employee WHERE did IS NOT NULL GROUP BY did ;结果和部门表联合查询
+
+#查询每个部门的女员工的最高工资
+SELECT did,MAX(salary) FROM t_employee WHERE gender = '女' GROUP BY did;
+SELECT did,MAX(salary) FROM t_employee WHERE gender = '女' AND did IS NOT NULL GROUP BY did;
+
+#查询男、女员工的平均工资
+SELECT gender,AVG(salary) FROM t_employee GROUP BY gender;
+
+#查询每个部门的男、女员工的平均工资分别是多少
+#先按部门再按男女
+SELECT did, gender, AVG(salary) FROM t_employee GROUP BY did,gender;
+SELECT did, gender, AVG(salary) FROM t_employee WHERE did IS NOT NULL GROUP BY did,gender;
+
+#查询每个部门的工资总数
+SELECT did,SUM(salary) FROM t_employee GROUP BY did;
+
+#查询每个部门的男、女员工的人数
+SELECT did, gender, COUNT(*) FROM t_employee WHERE did IS NOT NULL GROUP BY did,gender;
+```
+
+##### 3. having：写条件
+
+where和having的区别：
+
+- where后面是不允许使用分组函数，having后面可以加分组函数
+- where是用于“原”表中的记录的筛选，而having是用于“统计结果”的筛选
+
+```mysql
+#查询每个部门的平均工资，只显示平均工资在12000以上的
+SELECT did,AVG(salary) FROM t_employee  GROUP BY did HAVING AVG(salary) > 12000
+
+#查询每个部门的最高工资，要求显示最高工资低于12000
+SELECT did,MAX(salary) FROM t_employee GROUP BY did HAVING MAX(salary) < 12000
+SELECT did,MAX(salary) AS "m" FROM t_employee GROUP BY did HAVING m < 12000
+```
+
+##### 4. order by：排序
+
+```mysql
+order by 字段名/统计结果 【DESC/ASC】, 字段名/统计结果 【DESC/ASC】 ...
+DESC ：降序
+ASC：升序
+```
+
+```mysql
+#查询员工的姓名和薪资，按照薪资的从高到低排序
+SELECT ename,salary FROM t_employee ORDER BY salary DESC;
+
+#查询员工的编号，姓名和薪资，按照薪资的从高到低排序，如果薪资相同，再按照编号升序排列
+SELECT eid,ename,salary FROM t_employee ORDER BY salary DESC,eid ASC;
+
+#查询每个部门的平均工资，按照平均工资的升序排序
+SELECT did,AVG(salary) FROM t_employee GROUP BY did ORDER BY AVG(salary) ASC;
+
+#查询每个部门的女员工的平均工资，按照平均工资的升序排序，并且只显示平均工资高于12000的
+SELECT did,AVG(salary) 
+FROM t_employee 
+WHERE gender = '女' 
+GROUP BY did 
+HAVING AVG(salary) > 12000
+ORDER BY AVG(salary) ASC;
+```
+
+##### 5. limit：分页显示
+
+```mysql
+limit m,n
+m = (page - 1)*每页的记录数
+n = 每页的记录数
+```
+
+```mysql
+#查询员工信息，每页显示10条，显示第一页
+SELECT * FROM t_employee LIMIT 0,10
+
+#查询员工信息，每页显示10条，显示第二页
+SELECT * FROM t_employee LIMIT 10,10
+
+#查询员工信息，每页显示5条，显示第三页
+SELECT * FROM t_employee LIMIT 10,5
+
+#查询每个部门的女员工的平均工资，按照平均工资的升序排序，并且只显示平均工资高于12000的，
+#每页显示1条，显示第二页
+SELECT did,AVG(salary) 
+FROM t_employee 
+WHERE gender = '女' 
+GROUP BY did 
+HAVING AVG(salary) > 12000
+ORDER BY AVG(salary) ASC
+LIMIT 1,1;
+```
+
+#### 子查询
+
+场景：当进行一个查询时，需要的条件或数据要用另外一个 select 语句的结果，这个时候，就要用到子查询。
+
+定义：先于当前查询执行的，并且是嵌套在当前查询中的查询叫做子查询。
+
+分类：
+
+1. where 型
+
+   定义：子查询嵌套在where + 条件 里面
+
+   条件的运算符分为两类：
+
+   > - =，>，>=，<，<=，!=  后面接子查询的结果必须是 ==“单值”== 
+   > - in，= any，>all，>= ，<all.....  后面接子查询的结果可以是 ==“多值”== 
+
+2. from 型
+   定义：子查询嵌套在from后面
+
+3. exists型
+
+   子查询嵌套在where exists后面，把where前面的查询的每一行的记录代入exists后面的子查询中，看是否是否有记录，如果有，就保留这个行，否则就去掉。
+
+
+```mysql
+################  where型  #################
+
+#查询全公司最高工资的员工的信息
+#(1)查询最高工资
+SELECT MAX(salary) FROM t_employee;
+
+#(2)查询最高工资的员工的信息
+SELECT * FROM t_employee WHERE salary = 130990
+
+#(3)合起来
+SELECT * FROM t_employee WHERE salary = (SELECT MAX(salary) FROM t_employee)
+
+#查询和孙红雷，刘烨，范冰冰三个人中任意一个工资一样的员工
+#查询孙红雷，刘烨，范冰冰三个人工资
+SELECT salary FROM t_employee WHERE ename IN ('孙红雷','刘烨','范冰冰');
+
+#查询和孙红雷，刘烨，范冰冰三个人中任意一个工资一样的员工
+SELECT * FROM t_employee WHERE salary IN (SELECT salary FROM t_employee WHERE ename IN ('孙红雷','刘烨','范冰冰'))
+SELECT * FROM t_employee WHERE salary = ANY (SELECT salary FROM t_employee WHERE ename IN ('孙红雷','刘烨','范冰冰'))
+
+#查询比李冰冰工资高的女员工
+SELECT * FROM t_employee WHERE gender = '女' AND salary > (SELECT salary FROM t_employee WHERE ename = '李冰冰');
+
+#查询全公司最高工资的员工的信息
+SELECT * FROM t_employee WHERE salary >= ALL(SELECT salary FROM t_employee)
+
+###################  from型  ###################
+
+#查询每个部门编号，部门名称，和平均工资，排除没有部门的员工，包括那些没有员工的部门
+#第一步，查询每个部门的平均工资，排除没有部门的员工
+SELECT did,AVG(salary) FROM t_employee  WHERE did IS NOT NULL GROUP BY did;
+
+#第二步：用刚才的结果和t_department联合查询
+SELECT t_department.*, temp.pingjun
+FROM t_department LEFT JOIN (SELECT did,AVG(salary) AS pingjun FROM t_employee  WHERE did IS NOT NULL GROUP BY did) AS temp
+ON t_department.did = temp.did
+
+#################  exists型  ######################
+
+#查询部门信息，该部门必须有员工
+SELECT * FROM t_department
+WHERE EXISTS (SELECT * FROM t_employee WHERE t_employee.did = t_department.did)
+
+#把SELECT * FROM t_department的每一行记录，根据t_employee.did = t_department.did，代入到(SELECT * FROM t_employee)中查，如果可以查到结果，说明该行要留下，否则就排除掉
+
+#查询部门信息，该部门必须有员工
+#使用内连接查询，也可以实现
+SELECT  DISTINCT t_department.* 
+FROM t_department INNER JOIN t_employee
+ON t_employee.did = t_department.did
+
+SELECT  t_department.* 
+FROM t_department INNER JOIN t_employee
+ON t_employee.did = t_department.did
+GROUP BY did
+```
+
+#### 函数
+
+##### 1. 单行函数：数学函数
+
+单行函数和分组函数：
+
+- 单行函数：只对某一行的记录做运算
+
+- 分组函数：多行一起统计/合计运算
+
+  > sum,count,avg,max,min都是针对多行求一个结果
+
+
+
+数学函数：
+
+- round(x,y)：小数点后取 y 位,并且四舍五入
+- truncate(x,y)：直接截掉，保留 x 的小数点后取 y 位
+
+```mysql
+#查询员工的姓名，薪资，薪资保留小数点后一位
+SELECT ename,salary,ROUND(salary,1) FROM t_employee;
+
+#查询员工的姓名，薪资，薪资保留小数点后一位
+SELECT ename,salary,TRUNCATE(salary,1) FROM t_employee;
+
+#select ceil(2.2),floor(2,2);
+SELECT CEIL(2.2),FLOOR(2.2);
+
+#求每个部门的平均工资
+SELECT did, ROUND(AVG(salary),2) FROM t_employee GROUP BY did;
+```
+
+##### 2. 字符串函数
+
+```mysql
+#查询每个员工的姓，不考虑复姓
+SELECT ename AS "姓名", LEFT(ename,1) AS "姓" FROM t_employee;
+
+/*
+java：下标从 0 开始，
+	str.substring(index)
+	str.substring(start,end)
+
+mysql：下标从 1 开始
+	substring(str,index)
+	substring(str,start,len)
+*/
+
+SELECT ename AS "姓名", SUBSTRING(ename,1,1) AS "姓" FROM t_employee;
+
+#查询员工的姓名的长度
+/*
+java中：
+str.length()
+mysql中：
+length(str)：求字符串的长度，字节数
+char_length(str)
+*/
+SELECT ename, LENGTH(ename) FROM t_employee;
+SELECT ename, CHAR_LENGTH(ename) FROM t_employee;
+
+#查询所有名字是3个字的员工
+SELECT * FROM t_employee WHERE CHAR_LENGTH(ename) = 3;
+
+/*
+java中字符串拼接：
+（1）+
+（2）str.concat(xx)
+mysql中字符串的拼接：
+只能用concat()
+
+在mysql中的+，都是求和，如果不是数字，会尽力而为求和，结果不一定对
+*/
+#查询员工的姓名和手机号码，结果要显示为：孙红雷:13789098765
+SELECT CONCAT(ename,':',tel) FROM t_employee;
+
+/*
+在java中trim()表示去掉前后空白格
+在mysql中，trim系列的函数
+*/
+SELECT CONCAT('[',TRIM('     hello world    '),']')
+SELECT CONCAT('[',LTRIM('     hello world    '),']')
+SELECT CONCAT('[',RTRIM('     hello world    '),']')
+
+
+SELECT CONCAT('[',TRIM(BOTH '&' FROM '&&&&&hello world&&&&'),']')
+SELECT CONCAT('[',TRIM(LEADING '&' FROM '&&&&&hello world&&&&'),']')
+SELECT CONCAT('[',TRIM(TRAILING '&' FROM '&&&&&hello world&&&&'),']')
+```
+
+##### 3. 日期时间函数
+
+```mysql
+#获取当前的系统时间
+SELECT NOW(),SYSDATE()
+SELECT CURRENT_DATE(),CURRENT_TIME()
+
+#查询当前的年份
+SELECT YEAR(CURRENT_DATE())
+
+#查询满足40岁的员工
+SELECT * FROM t_employee WHERE YEAR(NOW()) - YEAR(birthday) > 40
+
+#查询入职已经满5年的员工
+SELECT * FROM t_employee 
+WHERE YEAR(NOW()) - YEAR(hiredate) > 5;
+
+SELECT * FROM t_employee WHERE (DATEDIFF(CURRENT_DATE(),hiredate) DIV 365) >=5;
+
+
+#计算当前日期，再过130天是什么日期
+SELECT DATE_ADD(CURRENT_DATE(),INTERVAL  130 DAY)
+
+#计算当前日期，45天前是什么日期
+SELECT DATE_ADD(CURRENT_DATE(),INTERVAL  -45 DAY)
+
+/*
+除了在JAVA中可以把字符串转日期时间，或者把日期时间转字符串，
+在mysql中也可以
+*/
+SELECT DATE_FORMAT(NOW(),'%y年%c月%e日');
+
+SELECT STR_TO_DATE('19年1月18日','%y年%c月%e日')
+```
+
+##### 4. 控制流程语句
+
+在Java中有if..else,switch...case等流程控制语句结构
+mysql中有对应的函数
+
+> 1. ifnull(x,value)：如果x是null，就用value计算，否则还是用x计算
+> 2. CASE 
+>    WHEN 条件1 THEN result1
+>    WHEN 条件2 THEN result2
+>    ....
+>    [ELSE resultn]
+>    END
+
+```mysql
+#查询员工的姓名，薪资，奖金比例，实发工资
+#实发工资 = 薪资 + 薪资 * 奖金比例
+SELECT ename,salary,commission_pct, salary + salary * IFNULL(commission_pct,0)  AS "实发工资" FROM t_employee;
+
+/*查询员工的信息，
+如果薪资高于20000，显示该员工是“高富帅”，
+如果薪资在15000-20000之间，显示“潜力股”
+如果薪资在10000-15000之间，显示“有为青年”
+如果薪资在10000以下，显示“屌丝"
+
+相当于if...else if...
+*/
+SELECT ename, salary, 
+CASE
+WHEN salary>=20000 THEN "高富帅"
+WHEN salary>=15000 THEN "潜力股"
+WHEN salary>=10000 THEN "有为青年"
+ELSE "屌丝"
+END AS "标签" #取别名
+FROM t_employee;
+
+#查询订单表，显示订单编号，和订单状态，如果订单状态是0，显示新订单，是1，显示已付款...
+/*
+相当于switch...case
+*/
+SELECT oid ,price,
+CASE state
+WHEN 0 THEN "新建订单"
+WHEN 1 THEN "已付款"
+WHEN 2 THEN "已发货"
+WHEN 3 THEN "已收货"
+END
+FROM t_order
+```
+
+##### 5. 加密函数
+
+1. password(x)
+
+2. md5(x)
+
+   ```mysql
+   insert into album (id,name, limit, userid) values (3,'accp',MD5('123456'));
+   INSERT INTO user VALUES(3,'kmd33',MD5('1234567'));
+   ```
+
+   password在新版本中不能用了，建议用MD5
+
+```mysql
+INSERT INTO t_user VALUES(2,'lin',PASSWORD('123456'));
+INSERT INTO t_user VALUES(3,'yan',MD5('123456'));
+
+SELECT * FROM t_user WHERE username='lin' AND `password` = PASSWORD('123456');#需要解密
+```
+
+#### 事务
+
+定义：表示一组操作（sql），要么同时成功，要么同时失败，那么这种操作就构成了一个事务。
+例如：
+
+> 张三  给  李四  转账  500元
+>
+> 1. 把张三的余额减少500
+>
+>    ​	...
+>
+> 2. 把李四的余额增加500
+
+
+
+不允许出现：张三的钱减少了500，而李四的钱没有加。需要在（1）之前开启事务，如果同时成功，那么就提交这个事务，否则就回滚（还原到（1））之前的状态。
+
+
+
+##### 1. 开启事务
+
+```mysql
+start transaction;
+```
+
+##### 2. 提交/回滚事务
+
+```mysql
+commit;
+rollback;
+```
+
+mysql默认情况下是自动提交事务模式，即执行一句，自动提交一句，一旦提交就不能回滚。如果想要开始手动提交模式，那么可以通过以下语句完成： `set autocommit = false;`
+
+**手动提交模式**
+
+如果开始了手动提交模式，那么一组 sql 语句，直到 commit 或 rollback 才算是结束，从这个 commit/rollback 到下一个 commit 或 rollback 之间算是一个==事务==。<u> 每一组操作都要手动提交或回滚</u> 。
+
+**自动提交模式** 
+
+总的来说使用自动提交模式，单独的一组操作想要开始手动提交模式的话，可以使用
+
+```mysql
+start transaction;  #只能用于命令行，不能用于JDBC的Java代码
+#...
+commit; #或 rollback;
+```
+
+
+
+
+
+```mysql
+#开启手动提交模式，作用范围是一次连接（从登录到退出）
+SET autocommit = FALSE;
+
+DELETE FROM t_department WHERE did > 5;
+
+INSERT INTO t_department VALUES(NULL,'yy','yyyy');
+
+ROLLBACK;
+#COMMIT;
+
+SET autocommit = TRUE;
+
+DELETE FROM t_department WHERE did > 5;
+
+START TRANSACTION;
+INSERT INTO t_department VALUES(NULL,'yy','yyyy');
+UPDATE t_department SET dname = '后勤服务部' WHERE did = 5;
+COMMIT;
+```
+
+[面试题](#1.  事务的特点、特性？)
+
+##### 3. 事务的隔离
+
+事务的隔离级别：
+
+1、为什么要隔离？
+保证事务的独立的。
+但是很多时候，事务之间有互相影响的。两个事务对同一个表的同一个记录的修改，这就互相影响了。
+
+在Java中就是线程安全问题。在mysql中这种问题也是线程安全问题。那么它表现出来的问题现象：
+
+1. 脏读
+   一个事务读取了另一个事务还未提交的数据
+
+2. 不可重复读
+
+   一个事务读取了另一个事务“修改”已提交的数据，导致一个事务期间对同一个数据的前后两次读取，结果不一致。
+
+3. 幻读
+   ​     一个事务读取了另一个事务新增加并已经提交的数据，导致一个事务期间记录数不一样。
+   ​     一个事务读取了另一个事务删除并已经提交的数据，导致一个事务期间记录数不一样。
+
+mysql的默认隔离级别是：（3）
+（1）READ-UNCOMMITTED：读取未提交的数据
+（2）READ-COMMITTED：读取已提交的数据
+（3）REPEATABLE-READ：可重复读取
+（4）SERIALIZABLE：序列化
+serializable
+
+查看当前连接的隔离级别：select @@tx_isolation;
+修改当前连接的隔离级别：set tx_isolation = 'READ-UNCOMMITTED';
+
+如果当前连接的隔离级别是READ-UNCOMMITTED，你会读取到别人未提交的数据，这个现象称为==脏读== 。
+如果避免“脏读”，就是提高隔离级别，提高为READ-COMMITTED或它以上。
+
+如果当前连接的隔离级别是READ-UNCOMMITTED和READ-COMMITTED，都会出现不可重复的的现象，
+如果要避免“不可重复读”，还是提高隔离级别，提高为REPEATABLE-READ或它以上。
+
+（3）REPEATABLE-READ和（4）SERIALIZABLE都能避免脏读、不可重复读、幻读，那么有什么区别呢？
+REPEATABLE-READ：行
+SERIALIZABLE：表
+
+#### 用户与权限
+
+mysql的权限验证分两个阶段
+
+1. 能否连接
+
+   - mysql 的用户的 ==认证==：==主机地址 + 用户名 + 密码==
+   - 如果主机地址写 %，就表示任意 IP 都可以访问
+   - 如果主机地址写 localhost，那么说明只能本机并且用localhost/127.0.0.1 才能访问
+
+2. 验证权限
+
+   - A：全局权限，针对所有库，所有表，所有字段的权限
+
+     如果某个操作有全局权限，那么就不判断对象级别权限了
+
+   - B：对象级别权限
+        库 --> 表 --> 字段   
+        每一种操作单独设置权限。
+
+# JDBC
+
+## 1. 什么是JDBC
+
+- Java Database Connectivity：Java数据库连接
+
+- JDBC是一组API，一个独立于特定 DBMS 的、通用的SQL 数据库存取和操作的公共接口。
+- SUM公司为了使得 Java 代码可以==跨数据库==，设计了一组公共的接口（标准），规定了所有操作数据库的代码应该用那些类型和方法。JDBC为访问<u>不同的数据库提供了统一的途径</u>
+- 这些**操作数据库底层的具体代码**由数据库厂商来实现，这些实现类称为==数据库驱动（Driver)== 。要连接哪个数据库就要拿到该数据库的驱动。
+-  Java 中通过 ==接口 + 驱动 + 标准的 SQL 语句==，就可以实现 Java 代码与各种数据库的连接操作
+- JDBC API 是 SUM 公司提供的，而这些==接口的实现类（Driver）==是由数据库厂商提供的
+
+```mermaid
+graph TD
+	Java-application --调用--> JDBC
+	JDBC --实现--> id1((Mysql))
+	JDBC --实现--> id2((Oracle))
+	JDBC --实现--> id3((SQLServer))
+	JDBC --实现--> id4((DB2))
+```
+
+## 2. 获取数据库连接
+
+##### 1. 导入驱动的 jar 包
+
+- 在 Project Structure 中将 jar 包导入 Library。
+
+- 如果是 Java 工程，需要在工程下创建 lib 文件夹，然后把 jar 包复制到该目录下，且将其标记为 Library
+- 如果的 web 工程，直接第一步就够了
+
+##### 2. 注册驱动，加载驱动类到内存中，即在内存中有驱动类的Class对象
+
+```java
+//在main方法中写：
+String driverClass = "com.mysql.cj.jdbc.Driver";
+Class.forName(driverClass);
+```
+
+##### 3. 获取连接，即登录，要用URL : 统一资源定位符
+
+```tex
+URL: http://localhost:8080/day31/index.html
+	 协议//主机地址:端口号/文件路径
+
+MySQL：
+	jdbc:mysql://localhost:3306/test
+	主协议:子协议://主机地址:端口号/数据库名
+```
+
+用到的API：
+
+- java.sql.Connection;
+- java.sql.DriverManager;
+
+```java
+//获取连接
+String url = "jdbc:mysql://localhost:3306/test?serverTimezone=UTC";
+String uer = "root";
+String password = "12345c";//注意 mysql 登陆密码不要写错
+Connection connection = DriverManager.getConnection(url,uer,password);
+```
+
+##### 4. 传输/执行SQL
+
+```java
+//执行sql
+
+//编写sql语句
+String sql = "insert into user values(4,'测试名','测试密码')";
+
+//创建Statement对象
+Statement st = connection.createStatement();
+
+//处理执行结果: 获取更新的行数
+int len = st.executeUpdate(sql);//insert,update,delete都会更新数据库，select是查询Query
+System.out.println(len > 0 ? "添加成功" : "添加失败");
+
+```
+
+##### 6. 释放资源
+
+```java
+//关闭资源
+st.close();
+connection.close();
+```
+
+##### 遇到的问题总结
+
+- 报错找不到驱动类
+
+  > 解决：新版本的 jdbc 驱动由原来的 `com.mysql.jdbc.Driver` 变成了 `com.mysql.cj.jdbc.Driver` 。如果建立的是 Java 工程，需要在工程下建一个 lib 文件夹，把驱动的 jar 包导入 并标记为 Library
+
+- 服务器拒绝访问
+
+  > 登录密码写错了
+
+- 时间不匹配
+
+  >  在 url 后加上：`?serverTimezone=UTC`
+  >
+  > ```java
+  > String url = "jdbc:mysql://localhost:3306/test?serverTimezone=UTC";
+  > ```
+
+## 3. JDBC 操作与连接池
+
+### 1. Statement 的三个问题
+
+#### 1. 1sql 拼接
+
+> Statement的第一个问题：需要 sql 的拼接，很麻烦。
+>
+> ```java
+> String sql = "INSERT INTO employee(ename,age,salary,gender) VALUES('" + ename + "','"+age+"','"+salary+"','"+ gender +"')";
+> ```
+>
+> 这里 employee 的字段没有按顺序，所以叫拼接
+
+
+
+##### PreparedStatement 解决拼接问题
+
+```java
+//编写 sql
+String sql = "INSERT INTO employee(ename,age,salary,gender) VALUES(?,?,?,?)";
+
+//创建 PreparedStatement 对象
+//Statement st = connection.createStatement();
+PreparedStatement pst = connection.prepareStatement(sql);//先传入 sql，对带？的sql进行预编译
+
+//把问号的具体值传入
+pst.setObject(1,ename);
+pst.setObject(2,age);
+pst.setObject(3,salary);
+pst.setObject(4,gender);
+
+//执行更新sql
+//int len = st.executeUpdate(sql);
+int len = pst.executeUpdate();//括号内不需要再赋值sql了
+```
+
+#### 1.2 sql 注入
+
+Statement的第二个问题：sql 注入，==盗窃信息== 
+
+```java
+输入 : cxy
+输出 ：可得到cxy的信息
+
+输入 ：胡歌' or '1'='1
+输出 : 表内所有
+```
+
+```java
+String sql = "select * from employee where ename = '"+ename+"'";
+// 输入：cxy' or '1'='1，带入上式：select * from employee where ename = 'cxy' or '1'='1'。or 后面的条件恒成立，故输出所有
+```
+
+PreparedStatement 解决注入问题 类似解决拼接问题。
+
+#### 1.3 处理blob 等类型
+
+Statement的第三个问题：sql 拼接不支持 blob  等二进制类型类型
+
+PreparedStatement 解决blob 等类型
+
+```java
+//读取图片
+FileInputStream fis = new FileInputStream("E:\\Pictures\\ww1.jpg");
+//...
+//编写 sql
+String sql = "UPDATE employee SET PHOTO = ? WHERE ename = '刘亦菲';";
+pst.setObject(1,fis);
+//...
+```
+
+在表格中新建一列命名为 photo，格式选择Mediumblob（最大传输16M），再在 mysql 安装目录下的my.ini文件中写下：
+
+```ini
+max_allowed_packet=16M
+```
+
+### 2. JDBC 获取数据库自动生成的主键
+
+- Statement 是 PreparedStatement 的父接口
+
+* 在Statement 接口中有个常量值：RETURN_GENERATED_KEYS
+
+```java
+String sql = "INSERT INTO dept VALUES(NULL,?,?)";
+
+//Statement.RETURN_GENERATED_KEYS表示执行完 sql 后，返回自增长的键值
+PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+ResultSet generatedKeys = pst.getGeneratedKeys();//获取自增长的键值，被包装在一个ResultSet 的结果集中
+if(generatedKeys.next()){//自增长的键值只有一个单值
+    System.out.println("部门编号：" + generatedKeys.getObject(1));
+}
+```
+
+### 3. 批处理
+
+从excel等文件中获把原始数据迁移到当前数据库中时，用批处理可减少工作量
+
+- addPath() ：把sql 语句先添加到批处理命令中缓存起来
+
+- executeBatch()：执行批处理语句
+
+```java
+	String sql = "INSERT INTO dept VALUES(NULL,?,?)";
+	PreparedStatement pst = connection.prepareStatement(sql);
+
+     for (int i = 1; i <= 1000; i++) {
+            pst.setObject(1,"测试部门" + i);
+            pst.setObject(2,"测试简介" + i);
+            pst.addBatch();//添加到批处理。先缓存，缓存满之后会自动执行一批
+      }
+
+      //返回1000个结果
+      int[] results = pst.executeBatch();
+```
+
+* 注意：
+* 在 url 后面加一个数据：?rewriteBatchedStatements=true
+* 添加数据时用 VALUES 不要用 VALUE
+
+### 4. 事务
+
+mysql 默认自动提交事务，执行一句提交一句
+
+跳过，有需要再回头学
+
+### 5. JDBC 工具类
+
+- 问题一：注册驱动、获取连接等写了很多遍
+
+- 问题二：每次都从数据库获取新的连接
+
+  mysql是一个 TCP/IP 协议的网络程序，
+
+  > - 每获取一次连接的成本很高，连接需要“三次握手”，断开需要“四次挥手”等过程
+  >
+  > - 每一个客户端都有单独的线程来维护它的通信，如果很多客户端同时连接mysql服务器就会造成：
+  >
+  >   > 1. mysql 的并发量就会有风险，如果太多服务器可能会挂，特别是获取完连接没有关闭
+  >   > 2. 连接只是用一次太浪费资源了，我们希望能==重复利用连接对象==
+
+
+
+Solution：
+
+- 问题一：把注册驱动、获取连接等方法封装到一个工具类中
+- 问题二：使用数据库连接池
+
+##### 数据库连接池技术
+
+- 先创建一个连接池pool，然后在池中放一些连接对象，程序可以直接在池中直接获取现有的对象
+- 可以设置连接池的最大连接数，如果池中的所有连接都在使用，可以让“客户端”等待。不至于让服务器挂了。
+- 创建连接池时，一开始是初始化少量的连接，等用户并发量上来后会增加连接数，直到增加到最大连接数
+- 用完连接后，之前是用connection.close与服务器断开，现在从是还给连接池
+
+##### Druid 数据库连接池
+
+**Druid** 是阿里提供的数据库连接池，集 DBCP(Apache) 、C3P0、Proxool 优点于一身的数据库连接池。
+
+1. 导入 <a href="https://repo1.maven.org/maven2/com/alibaba/druid/1.1.16">druid-1.1.16.jar </a>到当前工程的 library
+
+2. 新建 Properties 设置连接参数
+
+   ```
+   为了获取连接，需设置：主机名、端口号、用户名、密码、驱动类名
+   其它参数：初始化连接数、最多连接数...
+   ```
+
+   在 src 下创建一个 druid.properties文件。src就是sources类型，而配置文件应该是resources类型，所以我们在idea当中新建一个properties时，就要新建一个ResourceBundle类型的文件。配置如下：
+
+   url 后本应加这句：`?rewriteBatchedStatements=true`，但加了`?serverTimezone=UTC`冲突了
+
+   ```properties
+   url=jdbc:mysql://localhost:3306/test?serverTimezone=UTC
+   username=root
+   password=12345c
+   driverClassName=com.mysql.cj.jdbc.Driver
+   initialSize=10
+   maxActive=20
+   maxWait=1000
+   filters=wall
+   ```
+
+3. 创建连接池
+
+   创建一个连接池，一个系统只创建一个
+
+   ```java
+   private static DataSource ds;
+   ```
+
+4. 提供一个可以从数据库连接池中取对象的方法
+
+5. 提供一个关闭连接的方法
+
+
+
+
+
+# Big Data --Senior
+
+## Java Web
+
+BS架构：Browser/Server，有浏览器端/客户端 和服务器
+
+CS架构：Client/Server，有安装包/客户端和服务器
+
+![1583930684414](pic/1583930684414.png)
+
+```mermaid
+graph LR
+	subgraph 客户端/Browser
+	HTML/CSS/JS
+	end
+	
+	subgraph 服务器端/Tomcat
+	Servlet
+	end
+	
+	HTML/CSS/JS --HTTP协议--> Servlet
+	Servlet --HTTP协议--> HTML/CSS/JS
+
+	
+```
+
+### 1. HTML
+
+#### 1. 什么是HTML
+
+1. HTML指的==超文本标记语言(Hyper Text Markup Language)==，是一种用来描述网页的语言。超文本指的是除了可以包含文字之外，还可以包含图片、链接、音乐、视频、程序等内容。
+
+2. HTML网页的组成
+
+   ![1583930847738](pic/1583930847738.png)
+
+3. 常用的HTML标签
+
+   - html     根标记
+
+   - head     头标记
+
+   - body     体标记
+
+   -  a        超链接
+
+     > ```html
+     > > > > > > > > > > > > <!-- 超链接  href:可以指定应用内或者是应用外的任意地址 -->
+     > > > > > > > > > > > <a href="http://www.baidu.com">点我查看</a>
+     > > > > > > > > > > > ```
+     > > > > > > > > > > ```
+     > > > > > > > > > ```
+     > > > > > > > > ```
+     > > > > > > > ```
+     > > > > > > ```
+     > > > > > ```
+     > > > > ```
+     > > > ```
+     > > ```
+     > ```
+
+   - form     表单
+
+     > ```html
+     > <!-- 表单: 收集用户的信息，提交到后台服务器 -->
+     > 		<form action="http://www.baidu.com" method="GET/POST">
+     > ```
+
+   - table     表格
+
+     > - tr   行
+     >
+     > - th   标题列  自带居中并加粗的效果
+     >
+     > - td   普通列
+     >
+     >   ```html
+     >   		<table border="1px" align="center" width="60%" cellspacing="0px">
+     >   			<!-- tr -->
+     >   			<tr>
+     >   				<!-- 
+     >   					th:标题列  自带居中并加粗的效果
+     >   					td:普通列
+     >   				 -->
+     >   				<th>员工ID</th>
+     >   				<th>员工名</th>
+     >   				<th>员工性别</th>
+     >   				<th>员工描述</th>
+     >   			
+     >   			</tr>
+     >   			<tr align="center">
+     >   				<td align="center">1001</td>
+     >   				<td>cxy</td>
+     >   				<td>女</td>
+     >   				<td>硅谷第一美女</td>
+     >   			</tr>
+     >   		
+     >   		</table>
+     >   ```
+
+
+### 2. CSS
+
+```css
+<head>
+      <style>
+		body{
+                background-color:pink;
+            }
+		#d1{
+    			background-color: blueviolet;
+			}
+		.d{
+    			background-color: blanchedalmond;
+			}
+        </style>
+    </head>
+```
+
+### 3. web
+
+[IDEA创建web工程](<https://www.cnblogs.com/wfhking/p/9395774.html>)
+
+#### 3.1 登录功能实现——LoginServlet
+
+##### 3.1.1 知识点
+
+1)        Servlet  
+
+2)        Request请求对象
+
+3)        Response响应对象
+
+##### 3.1.3 什么是Servlet
+
+1. Servlet是Sun公司制定的一套技术标准，包含与Web应用相关的一系列接口，是Web应用实现方式的<u>宏观解决方案</u>。而具体的 ==Servlet 容器（Tomcat）负责提供标准的实现==。
+
+2. Servlet作为服务器端的一个组件，它的本意是“服务器端的小程序”（==Tomcat中会有多个Servlet，每一个Servlet都负责处理一件事，如登录、注册==）。Servlet的实例对象由Servlet容器负责创建；Servlet的方法由容器在特定情况下调用；Servlet容器会在Web应用卸载时销毁Servlet对象的实例。
+
+   ```mermaid
+   graph LR
+   
+   	Cient --HTTP--> Servlet_登录
+   	Servlet_登录 --HTTP--> Cient
+   	subgraph Tomcat
+   	Servlet_注册
+   	Servlet_登录
+   	Servlet_忘记密码
+   	...
+   	end
+   ```
+
+3. 简单可以理解为  Servlet就是用来处理客户端的请求的.
+
+##### 5.3 Servlet开发规则
+
+编码通过继承 HttpServlet
+
+##### 5.4 Servlet类的相关方法
+
+- doGet：处理客户端的get方式的请求
+
+- doPost：处理客户端的post方式的请求
+
+- service：根据具体的请求方式去调用对应的doGet、doPost 方法
+
+  >  ①      在Servlet的顶层实现中，在service方法中调用的具体的doGet或者是doPost
+  >
+  > ②      在实际开发Servlet的过程中，可以选择重写doGet以及doPost  或者 直接重写service方法来处理请求。
+
+##### 5.5 Servlet在web.xml中的配置
+
+```xml
+<!-- 配置LoginServlet : 配置LoginServlet与处理的请求的映射.
+ 客户端请求匹配的过程:
+	与<serlvet-mapping>中的< url-pattern>进行匹配， 匹配到以后，再找到<servlet-mapping>
+	中的<servlet-name>的值， 再拿上该值 到<servlet>节点中匹配 相同的<servlet-name>,进而找到
+	<servlet-class>.
+	Tomcat通过反射的方式创建LoginServlet的实例，根据具体的请求方式调用对应的doGet或者是doPost方法.
+-->
+  <servlet>
+      <servlet-name>loginServlet</servlet-name>
+      <servlet-class>com.atguigu.login.servlet.LoginServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+      <servlet-name>loginServlet</servlet-name>
+      <url-pattern>/login</url-pattern>
+  </servlet-mapping>
+```
+
+
+
+
+
 # 面试题
 
 ## Java 基础
@@ -2645,4 +5089,42 @@ graph LR
   2. HashMap 和 Hashtable的异同？
   3. CurrentHashMap 与 Hashtable的异同？（暂时不讲）
 
-#### 3. Collection和Collections的区别
+#### 3. Collection和Collections的区别 
+
+
+
+## MySQL
+
+### 事务
+
+#### 1.  事务的特点、特性？
+
+ACID：
+
+1. 原子性
+
+   事务的sql语句的划分，必须小到不能在小。 这一组操作是否真的要求：要么同时成功，要么同时失败。
+
+2. 一致性
+
+   保证事务前后数据一致性 。
+
+   例如：张三原来余额：500，李四原来余额：2000，张三要给李四转 500 
+
+   > 一致性：事务之前  张三原来余额：500，李四原来余额：2000。
+   >
+   > 事务之后：
+   >
+   > > 如果失败，张三余额：500，李四原来余额：2000
+   > > 如果成功，张三余额：0，李四原来余额：2500
+
+3. 隔离性
+
+   两个事务之间是独立。
+   例如：张三给李四转500，李四给王五转1000，赵六给李四转800，
+
+   ​            这三个事务是独立的，张三给李四转账的成功与失败与  其他两个操作无关。
+
+4. 持久性：一旦提交就确定了。
+
+mysql中只有 ==Innodb 引擎== 才支持事务。事务只对DML语句有效，对DDL语句无效。
