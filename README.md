@@ -6,6 +6,7 @@
 Alt + Up : 上移选中代码
 Fn + home/end ：快速到达行首或行尾
 
+Ctrl + +/-:放大或缩小当前 光标选择的位置
 Ctrl + B : 隐藏/展开左侧菜单
 Ctrl + G : 挑到指定行号
 Ctrl + T : 查看选中类或方法的源码
@@ -38,9 +39,11 @@ Alt + Shift + Up/Down : 将选中代码上/下移
 
 Ctrl + Shift + - ： 折叠所有代码
 Ctrl + Shift + + ： 展开所有代码
+Ctrl + Shift + A :  搜索全局，比如搜索toolbar可快捷打开toolbar
 
 Ctrl + Alt + B：查看源码
 Ctrl + Alt + T: surround with，比如 try-catch,if-else等
+Ctrl + Shift + S： Linux 下Ctrl + Alt + T与打开终端的 快捷键冲突。
 
 Shift + Esc ：折叠左侧Project文件浏览窗口
 
@@ -675,7 +678,7 @@ graph LR
 
 - 注解
 
-  Editor  -->Code Style -->File and Code Templates --> Include -->File Header -->输入：
+  Editor  -->File and Code Templates --> Include -->File Header -->输入：
 
   ```java
   /**
@@ -2436,6 +2439,25 @@ newInstance():调用此方法，创建对应的运行时类的对象。内部调
 ​    1.便于通过反射，创建运行时类的对象
 ​    2.便于子类继承此运行时类时，默认调用super()时，保证父类有此构造器
 
+#### 创建运行时类的对象的方式
+
+```java
+//1.调用运行时类本身的.class属性
+Class clazz1 = Person.class;
+//2.通过运行时类的对象获取
+Person p = new Person();
+Class clazz2 = p.getClass();
+//3.通过Class的静态方法获取
+String className = "com.test.Person";
+Class clazz3 = Class.forName(className);
+//    clazz3.newInstance();//Deprecated
+//4.通过类的加载器
+ClassLoader classLoader = this.getClass().getClassLoader();
+Class clazz4 = classLoader.loadClass(className);
+System.out.println(clazz1 == clazz4); //true 即只加载一次
+System.out.println(clazz2 == clazz3); //true
+```
+
 #### 获取运行时类的属性
 
 - getFields():获取当前运行时类及其父类中声明为public访问权限的属性
@@ -2512,7 +2534,7 @@ Class[] parameterTypes = m.getParameterTypes();
   Object returnValue = show.invoke(p,"CHN"); //String nation = p.show("CHN");
   ```
 
-- 获取指定的构造器
+- ==获取指定的构造器==
 
   ```java
   //getDeclaredConstructor():参数：指明构造器的参数列表
@@ -3091,407 +3113,433 @@ select id  "编 号", name 姓名, salary  薪资 from employee;
 >   - ==主键约束==
 >
 >     > 1. 概述
->     >
->     >    - 关键字 ：primary key
->     >    - 特点：增加主键约束的列（字段）的值必须是==非空== + 唯一的，一个表只有一个主键约束
->     >    - 作用：保证表中不会出现两条无法区分的记录
->     >    - 要求：每一张表都必须有主键约束
->     >    - 分类 : 单列主键约束 、复合主键约束
->     >    - 
->     >
->     > 2. 使用主键约束
->     >
->     >    2.1 创建主键约束(primary key)
->     >
->     >    - 建表时指定主键约束
->     >
->     >      ```mysql
->     >      create table 【数据库名.】表名称(
->     >      	字段1 数据类型 primary key,
->     >      	字段2 数据类型,
->     >      	....
->     >      );
->     >      create table dept(
->     >         id int,
->     >         name varchar(20),
->     >         description varchar(20));
->     >      create table 【数据库名.】表名称(
->     >      	字段1 数据类型,
->     >      	字段2 数据类型,
->     >      	....,
->     >      	primary key(字段1)
->     >      );
->     >      ```
->     >
->     >    - 建表后指定主键约束
->     >
->     >      ```mysql
->     >      create table dept(
->     >      	id int,
->     >      	name varchar(20),
->     >      	description varchar(100)
->     >      );
->     >      修改表结构：
->     >      alter table dept add primary key(id);
->     >      ```
->     >
->     >    2.2  删除主键约束
->     >
->     >    ```mysql
->     >    alter table 表名称 drop primary key;
->     >    ```
->     >
->     > 3. ==复合主键==
->     >
->     >    3.1 建表时指定主键约束
->     >
->     >    > 1. ```mysql
->     >    >    create table 【数据库.】表名称(
->     >    >    	字段1 数据类型,
->     >    >    	字段2 数据类型,
->     >    >    	字段3 数据类型,
->     >    >    	...,
->     >    >    	primary key(字段列表)
->     >    >    );
->     >    >    #e.g.
->     >    >    create table score(
->     >    >    	sid int,		#学号
->     >    >    	cid int,		#课程编号
->     >    >    	score int,		#对应的成绩
->     >    >    	primary key(sid,cid)
->     >    >    );
->     >    >    ```
->     >    >
->     >    >    ​    说明：复合主键不能在列后面加，需要单独指定
->     >
->     >    3.2 建表后指定主键约束
->     >
->     >    >alter table 【数据库.】表名称 add primary key(字段列表);
->     >    >
->     >    >```mysql
->     >    >create table stu(
->     >    >	sid int,
->     >    >    sname varchar(20)
->     >    >);
->     >    >create table course(
->     >    >	cid int,
->     >    >    cname varchar(20)
->     >    >);
->     >    >create table score(
->     >    >    sid int,
->     >    >    cid int,
->     >    >    score int
->     >    >);
->     >    >insert into stu values(1,'张三'),values(2,'李四');
->     >    >insert into course values(1001,'mysql'),(1002,'java');
->     >    >insert into score values(1,1001,89),(1,1002,90),(2,1001,88),(2,1002,92);
->     >    ># score:
->     >    >+------+------+-------+
->     >    >| sid  | cid  | score |
->     >    >+------+------+-------+
->     >    >|    1 | 1001 |    89 |
->     >    >|    1 | 1002 |    90 |
->     >    >|    2 | 1001 |    88 |
->     >    >|    2 | 1002 |    92 |
->     >    >+------+------+-------+
->     >    >sid和cid都可能不止出现一次，于是出现复合主键，将两者一起设置为主键：
->     >    >alter table score add primary key(sid,cid);
->     >    >
->     >    >#也可以通过唯一标记行，不用符合主键
->     >    >create table score(
->     >    >	id int,			#没有业务意义，只是唯一标记一行
->     >    >	sid int,		#学号
->     >    >	cid int,		#课程编号
->     >    >	score int,		#对应的成绩
->     >    >	primary key(id)
->     >    >);
->     >    >```
->     >
->     > 4. ==唯一键约束== 
->     >
->     >    - 概述
->     >
->     >      > 1、关键字：unique key
->     >      > 2、特点：指定了唯一键的列的值必须唯一，不能重复
->     >      > 3、作用：给主键以外的列，限定唯一性
->     >      > 4、唯一键分类：单列的唯一，复合唯一
->     >      >
->     >      > 5、唯一键和主键的区别： 
->     >      > （1）主键不能为空，唯一键可以为空
->     >      > （2）主键约束，一个表只能有一个，而唯一键可以有很多个
->     >
->     >    - 使用唯一键
->     >
->     >      （1）在建表时
->     >
->     >      ```mysql
->     >      
->     >      create table 【数据库名.】表名称(
->     >      	字段1 数据类型  primary key,
->     >          字段2 数据类型 【unique key】,
->     >          字段3 数据类型 【unique key】,
->     >      	...
->     >      );
->     >      或
->     >      create table 【数据库名.】表名称(
->     >      	字段1 数据类型  primary key,
->     >      	字段2 数据类型 ,
->     >      	字段3 数据类型 ,
->     >      	...,
->     >      	unique key(字段2),  #分别唯一
->     >      	unique key(字段3)
->     >      );
->     >      
->     >      create table 【数据库名.】表名称(
->     >      	字段1 数据类型  primary key,
->     >      	字段2 数据类型 ,
->     >      	字段3 数据类型 ,
->     >      	...,
->     >      	unique key(字段列表)  #复合唯一
->     >      );
->     >      
->     >      create table emp(
->     >      	eid int primary key,  #员工编号
->     >      	ename varchar(20),   #姓名
->     >      	cardid varchar(18)  unique key,		#身份证号
->     >      	tel varchar(11) unique key
->     >      );
->     >      
->     >      insert into emp values(1,'张三','123456789123456789','12345678912');
->     >      insert into emp values(2,'李四','123456789123456788','12345678912');
->     >      
->     >      mysql> insert into emp values(2,'李四','123456789123456788','12345678912');
->     >      ERROR 1062 (23000): Duplicate entry '12345678912' for key 'tel'
->     >      ```
->     >
->     >      (2) 在建表后
->     >
->     >      ```mysql
->     >      alter table 【数据库名.】表名称 add unique key(字段名);
->     >      alter table 【数据库名.】表名称 add unique key(字段列表);  #复合唯一
->     >      ```
->     >
->     >    - 删除唯一键
->     >
->     >      ```mysql
->     >      alter table 【数据库名.】表名称 drop index 索引名;
->     >      
->     >      #如果不知道索引名，可以通过如下的语句查询：
->     >      show index from 表名称;
->     >      
->     >      alter table emp drop unique key;  #错误
->     >      alter table emp drop unique key(cardid);  #错误
->     >      alter table emp drop index cardid;#正确
->     >      ```
->     >
->     >      索引：index   
->     >      ​	作用：为了提高查询效率，而设置索引。我们的键约束（主键、唯一键、外键），都会自动创建索引。
->     >      ​	因为既然你建立键约束，那么该列的值一定很关键，那么在实际中肯定经常用他们的值来查询。
->     >      ​	因此，为了提高查询效率，会自动在这些列上增加索引。
->     >
->     > 5. ==非空约束和默认值约束== 
->     >
->     >    - 指定非空约束
->     >
->     >      > - 建表时
->     >      >
->     >      > ```mysql
->     >      > create table emp(
->     >      > 	eid int primary key,  #员工编号
->     >      >   	ename varchar(20) not null,   #姓名
->     >      >   	cardid varchar(18)  unique key not null , #身份证号
->     >      >   	tel varchar(11) unique key not null,
->     >      >   	gender char not null default '男'
->     >      >   );
->     >      > 
->     >      > insert into emp values(1,'张三','111','10086','女');
->     >      > insert into emp values(2,'李四','111','女');  #错误的，原因是值的数量和列的数量不匹配
->     >      > insert into emp(eid,ename,cardid,gender) values(2,'李四','111','女');   #错误的  因为tel设置非空，但是又没指定默认值
->     >      > insert into emp(eid,ename,cardid,tel) values(2,'李四','222','10010'); 
->     >      > insert into emp values(3,'王五','3333','10011',default); 
->     >      > ```
->     >      >
->     >      > - 建表后
->     >      >
->     >      >   ```mysql
->     >      >   create table 【数据库名.】表名称(
->     >      >   	字段1 数据类型 primary key,
->     >      >   	字段2 数据类型 【unique key】【not null】【default 默认值】,
->     >      >   	字段2 数据类型 【unique key】【not null】【default 默认值】,
->     >      >   	...
->     >      >   );
->     >      >   
->     >      >   create table emp(
->     >      >   	eid int primary key,  #员工编号
->     >      >   	ename varchar(20) not null,   #姓名
->     >      >   	cardid varchar(18)  unique key  ,#身份证号
->     >      >   	tel varchar(11) unique key ,
->     >      >   	gender char 
->     >      >   );
->     >      >   
->     >      >   alter table emp modify cardid varchar(18) unique key  not null;
->     >      >   alter table emp modify tel varchar(11)   not null;
->     >      >   alter table emp modify gender char not null default '男';
->     >      >   ```
->     >
->     >    - - 如何去掉非空和默认值约束
->     >
->     >      ```mysql
->     >      alter table emp modify gender char ;
->     >      ```
->     >
->     > 6. ==自增约束== 
->     >
->     >    1. 关键字：auto_increment
->     >
->     >    2. 特点
->     >
->     >       （1）一个表只能有一个自增列
->     >       （2）自增列必须是整型的
->     >       （3）自增列必须是==键列==，例如：主键，唯一键
->     >
->     >    3. 如何指定自增
->     >
->     >       ```mysql
->     >       create table emp(
->     >       	eid int primary key auto_increment,
->     >       	ename varchar(20) not null
->     >       );
->     >       #不管eid处设置多少，只要前面设置了值，就会一直增加下去
->     >       insert into emp values(2,'张三'); # eid = 2
->     >       insert into emp(ename)values('李四');# eid = 3
->     >       insert into emp values(0,'王五');# eid = 4
->     >       insert into emp values(null,'赵六');# eid = 5
->     >       ```
->     >
->     > 7. ==外键约束==（了解）
->     >
->     >    七、外键约束（了解）
->     >    外键约束不是必须的，而且现在很多大的公司，数据量比较大时，不建议在数据库层面设计外键，因为他觉得这样效率低，把这个数据的约束挪到代码层面去判断。
->     >
->     >    1. 概述
->     >
->     >       - 关键字：foreign key
->     >
->     >       - 特点：
->     >
->     >         > 1. 约束的是两张表的关系，需要两张表，或者一张表虚拟成两张表
->     >         > 2. 两张表分为主表（父表）和从表（子表），外键的建立/指定是在从表（子表）上建立
->     >         > 3. 被参考的表称为主表，主表的被参考列必须是主键或唯一键
->     >         > 4. 一个表可以有多个外键
->     >
->     >    2. 指定外键
->     >
->     >       - 建表时指定外键
->     >
->     >         > 要求：
->     >         >
->     >         > 1. 建表的顺序：先建主表，再建从表。从表的语法：
->     >         >
->     >         >    ```mysql
->     >         >    create table 【数据库名.】表名称(
->     >         >    	字段1 数据类型  primary key,
->     >         >    	字段2 数据类型 【unique key】【not null】【default 默认值】,
->     >         >    	字段3 数据类型 【unique key】【not null】【default 默认值】,
->     >         >    	...,
->     >         >    	foreign key(从表的外键列) references 主表名(主表被参考的列名)
->     >         >    );
->     >         >    ```
->     >         >
->     >         > 2. 删表的顺序
->     >         >    先删从表，再删除主表。
->     >         >
->     >         > 3. 添加/修改从表数据
->     >         >
->     >         >    添加/修改从表记录时，引用主表的列的值必须是存在的。
->     >         >    例如：添加/修改员工表时，员工所在部门的值必须引用部门表的部门编号，保证该部门编号是存在的。
->     >         >
->     >         > 4. 删除/修改主表记录
->     >         >
->     >         >    - 默认情况下，如果主表的被参考列的值被引用，那么就不能轻易的被删除和修改。
->     >         >
->     >         >      例如：2号部门被员工引用了，那么这个2号部门就不能被删除，并且2这个编号值不能被修改。
->     >         >
->     >         >      ```mysql
->     >         >      foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update restrict/no action】 【on delete restrict/no action】
->     >         >      ```
->     >         >
->     >         >    - 如果在建立外键时，指定了“级联”策略，那么可以做到级联修改和删除
->     >         >
->     >         >      ```mysql
->     >         >      foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update cascade】 【on delete cascade】
->     >         >      ```
->     >         >
->     >         >    - C:如果在建立外键时，指定了“置空”策略，那么可以做到主表的记录被修改或删除时，从表的对应字段变为NULL
->     >         >
->     >         >      ```mysql
->     >         >      foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update set null】 【on delete set null】
->     >         >      ```
->     >         >
->     >         >    ```mysql
->     >         >    #部门表：主表
->     >         >    create table dept(
->     >         >    	did int primary key,		#部门编号
->     >         >    	dname varchar(20) not null unique key,  #部门名称
->     >         >    	description varchar(100)				#部门简介
->     >         >    );
->     >         >    insert into dept values(1,'财务部','发钱的'),(2,'后勤部','发礼物的');
->     >         >    
->     >         >    #职位表：主表
->     >         >    create table job(
->     >         >    	jid int primary key,		#职位编号
->     >         >    	title varchar(20) not null , #职位名称
->     >         >    	description varchar(100)	#职位简介
->     >         >    );
->     >         >    insert into job values(1,'会计','算钱的'),(2,'助理','修电脑的');
->     >         >    
->     >         >    #员工表：从表
->     >         >    create table emp(
->     >         >    	eid int primary key,			#员工编号
->     >         >    	ename varchar(20) not null,  #员工姓名
->     >         >    	deptid int,    #所在的部门编号   deptid可以取名did
->     >         >    	jobid int,     #职位编号
->     >         >    	foreign key(deptid) references dept(did),
->     >         >    	foreign key(jobid) references job(jid) on update set null on delete set null
->     >         >    );
->     >         >    
->     >         >    insert into emp values(1,'张三',1,1),(2,'李四',1,1),(3,'王五',2,2),(4,'赵六',2,2);
->     >         >    ```
->     >         >
->     >
->     >       - 建表后指定外键
->     >
->     >         ```mysql
->     >         alter table 从表名称 add foreign key(从表的字段) references 主表名(主表被参考的列名);
->     >         ```
->     >
->     >    3. 同一张表，自引用
->     >
->     >       ```mysql
->     >       create table emp(
->     >           eid int primary key,
->     >           ename varchar(20) not null,
->     >           managerid int,
->     >           foreign key(managerid) references emp(eid);
->     >       );
->     >       insert into emp values(1,'张三',1);#张三自己管自己
->     >       insert into emp values(2,'李四',1);#张三管李四
->     >       insert into emp values(3,'王五',2);#李四管王五
->     >       ```
->     >
->     >    4. 删除外键
->     >
->     >       ```mysql
->     >       alter table 从表名称 drop foreign key 外键约束名;
->     >       #查看外键约束名
->     >       SELECT * FROM information_schema.table_constraints WHERE table_name = '表名称';
->     >       ```
->     >
->     > 8. 
+>  >
+>  >- 关键字 ：primary key
+>  >- 特点：增加主键约束的列（字段）的值必须是==非空== + 唯一的，一个表只有一个主键约束
+>  >- 作用：保证表中不会出现两条无法区分的记录
+>  >- 要求：每一张表都必须有主键约束
+>  >- 分类 : 单列主键约束 、复合主键约束
+>  >- 
+>  >
+>  >2. 使用主键约束
+>  >
+>  >2.1 创建主键约束(primary key)
+>  >
+>  >- 建表时指定主键约束
+>  >
+>  >```mysql
+>  >create table 【数据库名.】表名称(
+>  >	字段1 数据类型 primary key,
+>  >	字段2 数据类型,
+>  >	....
+>  >);
+>  >create table dept(
+>  >id int,
+>  >name varchar(20),
+>  >description varchar(20));
+>  >create table 【数据库名.】表名称(
+>  >	字段1 数据类型,
+>  >	字段2 数据类型,
+>  >	....,
+>  >	primary key(字段1)
+>  >);
+>  >```
+>  >
+>  >- 建表后指定主键约束
+>  >
+>  >```mysql
+>  >create table dept(
+>  >	id int,
+>  >	name varchar(20),
+>  >	description varchar(100)
+>  >);
+>  >修改表结构：
+>  >alter table dept add primary key(id);
+>  >```
+>  >
+>  >2.2  删除主键约束
+>  >
+>  >```mysql
+>  >alter table 表名称 drop primary key;
+>  >```
+>  >
+>  >3. ==复合主键==
+>  >
+>  >3.1 建表时指定主键约束
+>  >
+>  >> 1. ```mysql
+>  >>   create table 【数据库.】表名称(
+>  >>   字段1 数据类型,
+>  >>   字段2 数据类型,
+>  >>   字段3 数据类型,
+>  >>   ...,
+>  >>   primary key(字段列表)
+>  >>   );
+>  >>   ```
+>  >> #e.g.
+>  >> create table score(
+>  >> sid int,		#学号
+>  >> cid int,		#课程编号
+>  >> score int,		#对应的成绩
+>  >> primary key(sid,cid)
+>  >> );
+>  >> ```
+>  >> 
+>  >> ```
+>  >>
+>  >> ```
+>  >> 
+>  >> ```
+>  >>
+>  >> ```
+>  >> 
+>  >> ```
+>  >>
+>  >> ​    说明：复合主键不能在列后面加，需要单独指定
+>  >>
+>  >> ```
+>  >> 
+>  >> ```
+>  >>
+>  >> ```
+>  >> 
+>  >> ```
+>  >>
+>  >> ```
+>  >> 
+>  >> ```
+>  >
+>  >3.2 建表后指定主键约束
+>  >
+>  >>alter table 【数据库.】表名称 add primary key(字段列表);
+>  >>
+>  >>```mysql
+>  >>create table stu(
+>  >>	sid int,
+>  >>    sname varchar(20)
+>  >>);
+>  >>create table course(
+>  >>	cid int,
+>  >>    cname varchar(20)
+>  >>);
+>  >>create table score(
+>  >>    sid int,
+>  >>    cid int,
+>  >>    score int
+>  >>);
+>  >>insert into stu values(1,'张三'),values(2,'李四');
+>  >>insert into course values(1001,'mysql'),(1002,'java');
+>  >>insert into score values(1,1001,89),(1,1002,90),(2,1001,88),(2,1002,92);
+>  >># score:
+>  >>+------+------+-------+
+>  >>| sid  | cid  | score |
+>  >>+------+------+-------+
+>  >>|    1 | 1001 |    89 |
+>  >>|    1 | 1002 |    90 |
+>  >>|    2 | 1001 |    88 |
+>  >>|    2 | 1002 |    92 |
+>  >>+------+------+-------+
+>  >>sid和cid都可能不止出现一次，于是出现复合主键，将两者一起设置为主键：
+>  >>alter table score add primary key(sid,cid);
+>  >>
+>  >>#也可以通过唯一标记行，不用符合主键
+>  >>create table score(
+>  >>	id int,			#没有业务意义，只是唯一标记一行
+>  >>	sid int,		#学号
+>  >>	cid int,		#课程编号
+>  >>	score int,		#对应的成绩
+>  >>	primary key(id)
+>  >>);
+>  >>```
+>  >
+>  >4. ==唯一键约束== 
+>  >
+>  >- 概述
+>  >
+>  >> 1、关键字：unique key
+>  >> 2、特点：指定了唯一键的列的值必须唯一，不能重复
+>  >> 3、作用：给主键以外的列，限定唯一性
+>  >> 4、唯一键分类：单列的唯一，复合唯一
+>  >>
+>  >> 5、唯一键和主键的区别： 
+>  >> （1）主键不能为空，唯一键可以为空
+>  >> （2）主键约束，一个表只能有一个，而唯一键可以有很多个
+>  >
+>  >- 使用唯一键
+>  >
+>  >（1）在建表时
+>  >
+>  >```mysql
+>  >
+>  >create table 【数据库名.】表名称(
+>  >	字段1 数据类型  primary key,
+>  >字段2 数据类型 【unique key】,
+>  >字段3 数据类型 【unique key】,
+>  >	...
+>  >);
+>  >或
+>  >create table 【数据库名.】表名称(
+>  >	字段1 数据类型  primary key,
+>  >	字段2 数据类型 ,
+>  >	字段3 数据类型 ,
+>  >	...,
+>  >	unique key(字段2),  #分别唯一
+>  >	unique key(字段3)
+>  >);
+>  >
+>  >create table 【数据库名.】表名称(
+>  >	字段1 数据类型  primary key,
+>  >	字段2 数据类型 ,
+>  >	字段3 数据类型 ,
+>  >	...,
+>  >	unique key(字段列表)  #复合唯一
+>  >);
+>  >
+>  >create table emp(
+>  >	eid int primary key,  #员工编号
+>  >	ename varchar(20),   #姓名
+>  >	cardid varchar(18)  unique key,		#身份证号
+>  >	tel varchar(11) unique key
+>  >);
+>  >
+>  >insert into emp values(1,'张三','123456789123456789','12345678912');
+>  >insert into emp values(2,'李四','123456789123456788','12345678912');
+>  >
+>  >mysql> insert into emp values(2,'李四','123456789123456788','12345678912');
+>  >ERROR 1062 (23000): Duplicate entry '12345678912' for key 'tel'
+>  >```
+>  >
+>  >(2) 在建表后
+>  >
+>  >```mysql
+>  >alter table 【数据库名.】表名称 add unique key(字段名);
+>  >alter table 【数据库名.】表名称 add unique key(字段列表);  #复合唯一
+>  >```
+>  >
+>  >- 删除唯一键
+>  >
+>  >```mysql
+>  >alter table 【数据库名.】表名称 drop index 索引名;
+>  >
+>  >#如果不知道索引名，可以通过如下的语句查询：
+>  >show index from 表名称;
+>  >
+>  >alter table emp drop unique key;  #错误
+>  >alter table emp drop unique key(cardid);  #错误
+>  >alter table emp drop index cardid;#正确
+>  >```
+>  >
+>  >索引：index   
+>  >​	作用：为了提高查询效率，而设置索引。我们的键约束（主键、唯一键、外键），都会自动创建索引。
+>  >​	因为既然你建立键约束，那么该列的值一定很关键，那么在实际中肯定经常用他们的值来查询。
+>  >​	因此，为了提高查询效率，会自动在这些列上增加索引。
+>  >
+>  >5. ==非空约束和默认值约束== 
+>  >
+>  >- 指定非空约束
+>  >
+>  >> - 建表时
+>  >>
+>  >> ```mysql
+>  >> create table emp(
+>  >> 	eid int primary key,  #员工编号
+>  >>   	ename varchar(20) not null,   #姓名
+>  >>   	cardid varchar(18)  unique key not null , #身份证号
+>  >>   	tel varchar(11) unique key not null,
+>  >>   	gender char not null default '男'
+>  >>   );
+>  >> 
+>  >> insert into emp values(1,'张三','111','10086','女');
+>  >> insert into emp values(2,'李四','111','女');  #错误的，原因是值的数量和列的数量不匹配
+>  >> insert into emp(eid,ename,cardid,gender) values(2,'李四','111','女');   #错误的  因为tel设置非空，但是又没指定默认值
+>  >> insert into emp(eid,ename,cardid,tel) values(2,'李四','222','10010'); 
+>  >> insert into emp values(3,'王五','3333','10011',default); 
+>  >> ```
+>  >>    
+>  >> - 建表后
+>  >>    
+>  >>   ```mysql
+>  >>   create table 【数据库名.】表名称(
+>  >>   	字段1 数据类型 primary key,
+>  >>   	字段2 数据类型 【unique key】【not null】【default 默认值】,
+>  >>   	字段2 数据类型 【unique key】【not null】【default 默认值】,
+>  >>   	...
+>  >>   );
+>  >>   
+>  >>   create table emp(
+>  >>   	eid int primary key,  #员工编号
+>  >>   	ename varchar(20) not null,   #姓名
+>  >>   	cardid varchar(18)  unique key  ,#身份证号
+>  >>   	tel varchar(11) unique key ,
+>  >>   	gender char 
+>  >>   );
+>  >>   
+>  >>   alter table emp modify cardid varchar(18) unique key  not null;
+>  >>   alter table emp modify tel varchar(11)   not null;
+>  >>   alter table emp modify gender char not null default '男';
+>  >>   ```
+>  >
+>  >- - 如何去掉非空和默认值约束
+>  >
+>  >```mysql
+>  >alter table emp modify gender char ;
+>  >```
+>  >
+>  >6. ==自增约束== 
+>  >
+>  >1. 关键字：auto_increment
+>  >
+>  >2. 特点
+>  >
+>  >（1）一个表只能有一个自增列
+>  >（2）自增列必须是整型的
+>  >（3）自增列必须是==键列==，例如：主键，唯一键
+>  >
+>  >3. 如何指定自增
+>  >
+>  >```mysql
+>  >create table emp(
+>  >	eid int primary key auto_increment,
+>  >	ename varchar(20) not null
+>  >);
+>  >#不管eid处设置多少，只要前面设置了值，就会一直增加下去
+>  >insert into emp values(2,'张三'); # eid = 2
+>  >insert into emp(ename)values('李四');# eid = 3
+>  >insert into emp values(0,'王五');# eid = 4
+>  >insert into emp values(null,'赵六');# eid = 5
+>  >```
+>  >
+>  >7. ==外键约束==（了解）
+>  >
+>  >七、外键约束（了解）
+>  >外键约束不是必须的，而且现在很多大的公司，数据量比较大时，不建议在数据库层面设计外键，因为他觉得这样效率低，把这个数据的约束挪到代码层面去判断。
+>  >
+>  >1. 概述
+>  >
+>  > - 关键字：foreign key
+>  >
+>  > - 特点：
+>  >
+>  >   > 1. 约束的是两张表的关系，需要两张表，或者一张表虚拟成两张表
+>  >   > 2. 两张表分为主表（父表）和从表（子表），外键的建立/指定是在从表（子表）上建立
+>  >   > 3. 被参考的表称为主表，主表的被参考列必须是主键或唯一键
+>  >   > 4. 一个表可以有多个外键
+>  >
+>  >2. 指定外键
+>  >
+>  > - 建表时指定外键
+>  >
+>  >   > 要求：
+>  >
+>  >>
+>  >>1. 建表的顺序：先建主表，再建从表。从表的语法：
+>  >>       
+>  >>```mysql
+>  >>create table 【数据库名.】表名称(
+>  >>	字段1 数据类型  primary key,
+>  >>	字段2 数据类型 【unique key】【not null】【default 默认值】,
+>  >>	字段3 数据类型 【unique key】【not null】【default 默认值】,
+>  >>	...,
+>  >>	foreign key(从表的外键列) references 主表名(主表被参考的列名)
+>  >>);
+>  >>```
+>  >>
+>  >>2. 删表的顺序
+>  >>先删从表，再删除主表。
+>  >>   
+>  >>3. 添加/修改从表数据
+>  >>       
+>  >>
+>  >>添加/修改从表记录时，引用主表的列的值必须是存在的。
+>  >>例如：添加/修改员工表时，员工所在部门的值必须引用部门表的部门编号，保证该部门编号是存在的。
+>  >>     
+>  >>4. 删除/修改主表记录
+>  >>       
+>  >>   - 默认情况下，如果主表的被参考列的值被引用，那么就不能轻易的被删除和修改。
+>  >>     
+>  >>
+>  >> 例如：2号部门被员工引用了，那么这个2号部门就不能被删除，并且2这个编号值不能被修改。
+>  >>     
+>  >> ```mysql
+>  >> foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update restrict/no action】 【on delete restrict/no action】
+>  >> ```
+>  >>
+>  >>   - 如果在建立外键时，指定了“级联”策略，那么可以做到级联修改和删除
+>  >>     
+>  >> ```mysql
+>  >> foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update cascade】 【on delete cascade】
+>  >> ```
+>  >>
+>  >>   - C:如果在建立外键时，指定了“置空”策略，那么可以做到主表的记录被修改或删除时，从表的对应字段变为NULL
+>  >>     
+>  >> ```mysql
+>  >> foreign key(从表的外键列) references 主表名(主表被参考的列名) 【on update set null】 【on delete set null】
+>  >> ```
+>  >>
+>  >>```mysql
+>  >>#部门表：主表
+>  >>create table dept(
+>  >>	did int primary key,		#部门编号
+>  >>	dname varchar(20) not null unique key,  #部门名称
+>  >>	description varchar(100)				#部门简介
+>  >>);
+>  >>insert into dept values(1,'财务部','发钱的'),(2,'后勤部','发礼物的');
+>  >>
+>  >>#职位表：主表
+>  >>create table job(
+>  >>	jid int primary key,		#职位编号
+>  >>	title varchar(20) not null , #职位名称
+>  >>	description varchar(100)	#职位简介
+>  >>);
+>  >>insert into job values(1,'会计','算钱的'),(2,'助理','修电脑的');
+>  >>
+>  >>#员工表：从表
+>  >>create table emp(
+>  >>	eid int primary key,			#员工编号
+>  >>	ename varchar(20) not null,  #员工姓名
+>  >>	deptid int,    #所在的部门编号   deptid可以取名did
+>  >>	jobid int,     #职位编号
+>  >>	foreign key(deptid) references dept(did),
+>  >>	foreign key(jobid) references job(jid) on update set null on delete set null
+>  >>);
+>  >>
+>  >>insert into emp values(1,'张三',1,1),(2,'李四',1,1),(3,'王五',2,2),(4,'赵六',2,2);
+>  >>```
+>  >>
+>  >
+>  > - 建表后指定外键
+>  >
+>  >```mysql
+>  >alter table 从表名称 add foreign key(从表的字段) references 主表名(主表被参考的列名);
+>  >```
+>  >
+>  >3. 同一张表，自引用
+>  >
+>  >```mysql
+>  >create table emp(
+>  >eid int primary key,
+>  >ename varchar(20) not null,
+>  >managerid int,
+>  >foreign key(managerid) references emp(eid);
+>  >);
+>  >insert into emp values(1,'张三',1);#张三自己管自己
+>  >insert into emp values(2,'李四',1);#张三管李四
+>  >insert into emp values(3,'王五',2);#李四管王五
+>  >```
+>  >
+>  >4. 删除外键
+>  >
+>  >```mysql
+>  >alter table 从表名称 drop foreign key 外键约束名;
+>  >#查看外键约束名
+>  >SELECT * FROM information_schema.table_constraints WHERE table_name = '表名称';
+>  >```
+>  >
+>  >8. 
 >
 >   - 
 >
->
+> 
 
 ### 3. DCL
 
@@ -4768,200 +4816,13 @@ Solution：
 
 5. 提供一个关闭连接的方法
 
+### 6. DAO : 数据访问接口和相关的类
+
+DAO：Data Access Object
+
+![项目分层](pic/%E9%A1%B9%E7%9B%AE%E5%88%86%E5%B1%82.png)
 
 
-
-
-# Big Data --Senior
-
-## Java Web
-
-BS架构：Browser/Server，有浏览器端/客户端 和服务器
-
-CS架构：Client/Server，有安装包/客户端和服务器
-
-![1583930684414](pic/1583930684414.png)
-
-```mermaid
-graph LR
-	subgraph 客户端/Browser
-	HTML/CSS/JS
-	end
-	
-	subgraph 服务器端/Tomcat
-	Servlet
-	end
-	
-	HTML/CSS/JS --HTTP协议--> Servlet
-	Servlet --HTTP协议--> HTML/CSS/JS
-
-	
-```
-
-### 1. HTML
-
-#### 1. 什么是HTML
-
-1. HTML指的==超文本标记语言(Hyper Text Markup Language)==，是一种用来描述网页的语言。超文本指的是除了可以包含文字之外，还可以包含图片、链接、音乐、视频、程序等内容。
-
-2. HTML网页的组成
-
-   ![1583930847738](pic/1583930847738.png)
-
-3. 常用的HTML标签
-
-   - html     根标记
-
-   - head     头标记
-
-   - body     体标记
-
-   -  a        超链接
-
-     > ```html
-     > > > > > > > > > > > > <!-- 超链接  href:可以指定应用内或者是应用外的任意地址 -->
-     > > > > > > > > > > > <a href="http://www.baidu.com">点我查看</a>
-     > > > > > > > > > > > ```
-     > > > > > > > > > > ```
-     > > > > > > > > > ```
-     > > > > > > > > ```
-     > > > > > > > ```
-     > > > > > > ```
-     > > > > > ```
-     > > > > ```
-     > > > ```
-     > > ```
-     > ```
-
-   - form     表单
-
-     > ```html
-     > <!-- 表单: 收集用户的信息，提交到后台服务器 -->
-     > 		<form action="http://www.baidu.com" method="GET/POST">
-     > ```
-
-   - table     表格
-
-     > - tr   行
-     >
-     > - th   标题列  自带居中并加粗的效果
-     >
-     > - td   普通列
-     >
-     >   ```html
-     >   		<table border="1px" align="center" width="60%" cellspacing="0px">
-     >   			<!-- tr -->
-     >   			<tr>
-     >   				<!-- 
-     >   					th:标题列  自带居中并加粗的效果
-     >   					td:普通列
-     >   				 -->
-     >   				<th>员工ID</th>
-     >   				<th>员工名</th>
-     >   				<th>员工性别</th>
-     >   				<th>员工描述</th>
-     >   			
-     >   			</tr>
-     >   			<tr align="center">
-     >   				<td align="center">1001</td>
-     >   				<td>cxy</td>
-     >   				<td>女</td>
-     >   				<td>硅谷第一美女</td>
-     >   			</tr>
-     >   		
-     >   		</table>
-     >   ```
-
-
-### 2. CSS
-
-```css
-<head>
-      <style>
-		body{
-                background-color:pink;
-            }
-		#d1{
-    			background-color: blueviolet;
-			}
-		.d{
-    			background-color: blanchedalmond;
-			}
-        </style>
-    </head>
-```
-
-### 3. web
-
-[IDEA创建web工程](<https://www.cnblogs.com/wfhking/p/9395774.html>)
-
-#### 3.1 登录功能实现——LoginServlet
-
-##### 3.1.1 知识点
-
-1)        Servlet  
-
-2)        Request请求对象
-
-3)        Response响应对象
-
-##### 3.1.3 什么是Servlet
-
-1. Servlet是Sun公司制定的一套技术标准，包含与Web应用相关的一系列接口，是Web应用实现方式的<u>宏观解决方案</u>。而具体的 ==Servlet 容器（Tomcat）负责提供标准的实现==。
-
-2. Servlet作为服务器端的一个组件，它的本意是“服务器端的小程序”（==Tomcat中会有多个Servlet，每一个Servlet都负责处理一件事，如登录、注册==）。Servlet的实例对象由Servlet容器负责创建；Servlet的方法由容器在特定情况下调用；Servlet容器会在Web应用卸载时销毁Servlet对象的实例。
-
-   ```mermaid
-   graph LR
-   
-   	Cient --HTTP--> Servlet_登录
-   	Servlet_登录 --HTTP--> Cient
-   	subgraph Tomcat
-   	Servlet_注册
-   	Servlet_登录
-   	Servlet_忘记密码
-   	...
-   	end
-   ```
-
-3. 简单可以理解为  Servlet就是用来处理客户端的请求的.
-
-##### 5.3 Servlet开发规则
-
-编码通过继承 HttpServlet
-
-##### 5.4 Servlet类的相关方法
-
-- doGet：处理客户端的get方式的请求
-
-- doPost：处理客户端的post方式的请求
-
-- service：根据具体的请求方式去调用对应的doGet、doPost 方法
-
-  >  ①      在Servlet的顶层实现中，在service方法中调用的具体的doGet或者是doPost
-  >
-  > ②      在实际开发Servlet的过程中，可以选择重写doGet以及doPost  或者 直接重写service方法来处理请求。
-
-##### 5.5 Servlet在web.xml中的配置
-
-```xml
-<!-- 配置LoginServlet : 配置LoginServlet与处理的请求的映射.
- 客户端请求匹配的过程:
-	与<serlvet-mapping>中的< url-pattern>进行匹配， 匹配到以后，再找到<servlet-mapping>
-	中的<servlet-name>的值， 再拿上该值 到<servlet>节点中匹配 相同的<servlet-name>,进而找到
-	<servlet-class>.
-	Tomcat通过反射的方式创建LoginServlet的实例，根据具体的请求方式调用对应的doGet或者是doPost方法.
--->
-  <servlet>
-      <servlet-name>loginServlet</servlet-name>
-      <servlet-class>com.atguigu.login.servlet.LoginServlet</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-      <servlet-name>loginServlet</servlet-name>
-      <url-pattern>/login</url-pattern>
-  </servlet-mapping>
-```
 
 
 
